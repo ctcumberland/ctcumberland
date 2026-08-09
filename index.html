@@ -238,6 +238,7 @@ body.tank-selected .photo-card img{background:#f7f8fa!important}
  </nav>
 </div>
 
+<input id="tankMeterCamera" class="camera-input" type="file" accept="image/*" capture="environment" onchange="tankMeterPhotoTaken(event)">
 <input id="meterCamera" class="camera-input" type="file" accept="image/*" capture="environment" onchange="meterPhotoTaken(event)">
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="sheet-head"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
 
@@ -258,16 +259,16 @@ const seed={
   {id:'A10',serial:'LT-458930',type:'Torre de luz',model:'Generac MLT6S',code:'TL-051',fuelCapacity:100,defCapacity:8,location:'Medical Trailer',description:'Parte posterior del Medical Trailer.',status:'Operativa',hourMeter:780,lastFuel:null,lastDef:null,fuelLevel:50,defLevel:3.6,priority:3,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null}
  ],
  tanks:[
-  {id:'T1',name:'Tanque 1',serial:'TK-001',capacity:552.4,current:460,location:'Sitemetric',description:'Tanque removible de 2.091 L para almacenamiento de diésel.',status:'Activo',removable:true,lastFill:'2026-08-09T06:00'},
-  {id:'T2',name:'Tanque 2',serial:'TK-002',capacity:552.4,current:420,location:'Trailer City',description:'Tanque removible de 2.091 L para abastecimiento del área.',status:'Activo',removable:true,lastFill:'2026-08-09T06:10'},
-  {id:'T3',name:'Tanque 3',serial:'TK-003',capacity:552.4,current:390,location:'Medical Trailer',description:'Tanque removible de 2.091 L del Medical Trailer.',status:'Activo',removable:true,lastFill:'2026-08-09T06:20'},
-  {id:'T4',name:'Tanque 4',serial:'TK-004',capacity:552.4,current:370,location:'Carpas Blancas',description:'Tanque removible de 2.091 L en Carpas Blancas.',status:'Activo',removable:true,lastFill:'2026-08-09T06:30'},
-  {id:'T5',name:'Tanque 5',serial:'TK-005',capacity:552.4,current:350,location:'Orientación',description:'Tanque removible de 2.091 L en Orientación.',status:'Activo',removable:true,lastFill:'2026-08-09T06:40'},
-  {id:'T6',name:'Tanque 6',serial:'TK-006',capacity:552.4,current:330,location:'Oficinas Mobil',description:'Tanque removible de 2.091 L para Oficinas Mobil.',status:'Activo',removable:true,lastFill:'2026-08-09T06:50'},
-  {id:'T7',name:'Tanque 7',serial:'TK-007',capacity:552.4,current:310,location:'Chill Zone',description:'Tanque removible de 2.091 L en Chill Zone.',status:'Activo',removable:true,lastFill:'2026-08-09T07:00'},
-  {id:'T8',name:'Tanque 8',serial:'TK-008',capacity:552.4,current:290,location:'Sitemetric',description:'Tanque auxiliar removible de 2.091 L en Sitemetric.',status:'Activo',removable:true,lastFill:'2026-08-09T07:10'},
-  {id:'T9',name:'Tanque 9',serial:'TK-009',capacity:552.4,current:270,location:'Trailer City',description:'Tanque auxiliar removible de 2.091 L en Trailer City.',status:'Activo',removable:true,lastFill:'2026-08-09T07:20'},
-  {id:'T10',name:'Tanque 10',serial:'TK-010',capacity:552.4,current:250,location:'Medical Trailer',description:'Tanque auxiliar removible de 2.091 L en Medical Trailer.',status:'Activo',removable:true,lastFill:'2026-08-09T07:30'}
+  {id:'T1',name:'Tanque 1',serial:'TK-001',capacity:552.4,current:460,location:'Sitemetric',description:'Tanque removible de 2.091 L para almacenamiento de diésel.',status:'Activo',removable:true,lastFill:'2026-08-09T06:00',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T2',name:'Tanque 2',serial:'TK-002',capacity:552.4,current:420,location:'Trailer City',description:'Tanque removible de 2.091 L para abastecimiento del área.',status:'Activo',removable:true,lastFill:'2026-08-09T06:10',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T3',name:'Tanque 3',serial:'TK-003',capacity:552.4,current:390,location:'Medical Trailer',description:'Tanque removible de 2.091 L del Medical Trailer.',status:'Activo',removable:true,lastFill:'2026-08-09T06:20',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T4',name:'Tanque 4',serial:'TK-004',capacity:552.4,current:370,location:'Carpas Blancas',description:'Tanque removible de 2.091 L en Carpas Blancas.',status:'Activo',removable:true,lastFill:'2026-08-09T06:30',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T5',name:'Tanque 5',serial:'TK-005',capacity:552.4,current:350,location:'Orientación',description:'Tanque removible de 2.091 L en Orientación.',status:'Activo',removable:true,lastFill:'2026-08-09T06:40',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T6',name:'Tanque 6',serial:'TK-006',capacity:552.4,current:330,location:'Oficinas Mobil',description:'Tanque removible de 2.091 L para Oficinas Mobil.',status:'Activo',removable:true,lastFill:'2026-08-09T06:50',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T7',name:'Tanque 7',serial:'TK-007',capacity:552.4,current:310,location:'Chill Zone',description:'Tanque removible de 2.091 L en Chill Zone.',status:'Activo',removable:true,lastFill:'2026-08-09T07:00',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T8',name:'Tanque 8',serial:'TK-008',capacity:552.4,current:290,location:'Sitemetric',description:'Tanque auxiliar removible de 2.091 L en Sitemetric.',status:'Activo',removable:true,lastFill:'2026-08-09T07:10',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T9',name:'Tanque 9',serial:'TK-009',capacity:552.4,current:270,location:'Trailer City',description:'Tanque auxiliar removible de 2.091 L en Trailer City.',status:'Activo',removable:true,lastFill:'2026-08-09T07:20',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T10',name:'Tanque 10',serial:'TK-010',capacity:552.4,current:250,location:'Medical Trailer',description:'Tanque auxiliar removible de 2.091 L en Medical Trailer.',status:'Activo',removable:true,lastFill:'2026-08-09T07:30',hourMeter:0,lastMeterPhotoTime:null}
  ],
  history:[]
 };
@@ -303,8 +304,8 @@ function priorityRank(loc){
 }
 
 const I={
- es:{edit:'Editar',more:'Más',tower:'TORRE DE LUZ',tank:'TANQUE',update:'Actualizar',currentLocation:'UBICACIÓN ACTUAL',priority:'PRIORIDAD',levels:'NIVELES ACTUALES',fuel:'COMBUSTIBLE',available:'Disponible',quick:'ACCIÓN RÁPIDA',fuelRefill:'Surtir Combustible',defRefill:'Surtir DEF',changeLocation:'Cambiar Ubicación',reportDamage:'Reportar Daño',history:'HISTORIAL',movements:'MOVIMIENTOS',refuels:'SURTIDOS',repairs:'DAÑOS / REPARACIONES',nextRefill:'PRÓXIMO SURTIDO RECOMENDADO',highPriority:'PRIORITARIO',home:'Inicio',towers:'Torres',tanks:'Tanques',reports:'Reportes',selectTower:'Seleccionar torre',selectTank:'Seleccionar tanque',searchList:'Buscar en la lista',searchTower:'Buscar torre',searchTank:'Buscar tanque',noResults:'Sin resultados',operational:'OPERATIVA',active:'ACTIVO',meter:'HORÓMETRO ACTUAL',capacity:'Capacidad combustible',tankCapacity:'Capacidad',currentLevel:'Nivel actual',removable:'Removible',yes:'Sí',no:'No',description:'Descripción',save:'Guardar',cancel:'Cancelar',replaceTower:'Reemplazar Torre',replaceTank:'Sustituir Tanque',lastReading:'Última lectura',lastRefill:'Último surtido',lastFill:'Último llenado',from:'Desde',estimated:'Estimado',priorityText:'Calculado según consumo promedio y prioridad de ubicación.',tankMeter:'INVENTARIO ACTUAL',meterPhoto:'Tomar foto del horómetro',confirmReading:'Confirmar lectura',estimatedRemaining:'Combustible estimado restante',estimatedMissing:'Faltante estimado',consumptionRate:'Consumo estimado',lastMeterPhoto:'Última foto de horómetro',fillDates:'Fechas de llenado / surtido',tankCode:'Código / Serial'},
- en:{edit:'Edit',more:'More',tower:'LIGHT TOWER',tank:'TANK',update:'Update',currentLocation:'CURRENT LOCATION',priority:'PRIORITY',levels:'CURRENT LEVELS',fuel:'FUEL',available:'Available',quick:'QUICK ACTION',fuelRefill:'Refuel Fuel',defRefill:'Refuel DEF',changeLocation:'Change Location',reportDamage:'Report Damage',history:'HISTORY',movements:'MOVEMENTS',refuels:'REFUELS',repairs:'DAMAGE / REPAIRS',nextRefill:'RECOMMENDED NEXT REFUEL',highPriority:'HIGH PRIORITY',home:'Home',towers:'Towers',tanks:'Tanks',reports:'Reports',selectTower:'Select tower',selectTank:'Select tank',searchList:'Search list',searchTower:'Search tower',searchTank:'Search tank',noResults:'No results',operational:'OPERATIONAL',active:'ACTIVE',meter:'CURRENT HOUR METER',capacity:'Fuel capacity',tankCapacity:'Capacity',currentLevel:'Current level',removable:'Removable',yes:'Yes',no:'No',description:'Description',save:'Save',cancel:'Cancel',replaceTower:'Replace Tower',replaceTank:'Replace Tank',lastReading:'Last reading',lastRefill:'Last refuel',lastFill:'Last fill',from:'From',estimated:'Estimated',priorityText:'Calculated from average consumption and location priority.',tankMeter:'CURRENT INVENTORY',meterPhoto:'Take hour meter photo',confirmReading:'Confirm reading',estimatedRemaining:'Estimated fuel remaining',estimatedMissing:'Estimated amount needed',consumptionRate:'Estimated consumption',lastMeterPhoto:'Last hour meter photo',fillDates:'Fill / dispensing dates',tankCode:'Code / Serial'}
+ es:{edit:'Editar',more:'Más',tower:'TORRE DE LUZ',tank:'TANQUE',update:'Actualizar',currentLocation:'UBICACIÓN ACTUAL',priority:'PRIORIDAD',levels:'NIVELES ACTUALES',fuel:'COMBUSTIBLE',available:'Disponible',quick:'ACCIÓN RÁPIDA',fuelRefill:'Surtir Combustible',defRefill:'Surtir DEF',changeLocation:'Cambiar Ubicación',reportDamage:'Reportar Daño',history:'HISTORIAL',movements:'MOVIMIENTOS',refuels:'SURTIDOS',repairs:'DAÑOS / REPARACIONES',nextRefill:'PRÓXIMO SURTIDO RECOMENDADO',highPriority:'PRIORITARIO',home:'Inicio',towers:'Torres',tanks:'Tanques',reports:'Reportes',selectTower:'Seleccionar torre',selectTank:'Seleccionar tanque',searchList:'Buscar en la lista',searchTower:'Buscar torre',searchTank:'Buscar tanque',noResults:'Sin resultados',operational:'OPERATIVA',active:'ACTIVO',meter:'HORÓMETRO ACTUAL',capacity:'Capacidad combustible',tankCapacity:'Capacidad',currentLevel:'Nivel actual',removable:'Removible',yes:'Sí',no:'No',description:'Descripción',save:'Guardar',cancel:'Cancelar',replaceTower:'Reemplazar Torre',replaceTank:'Sustituir Tanque',lastReading:'Última lectura',lastRefill:'Último surtido',lastFill:'Último llenado',from:'Desde',estimated:'Estimado',priorityText:'Calculado según consumo promedio y prioridad de ubicación.',tankMeter:'HORÓMETRO ACTUAL DEL TANQUE',tankLastSupply:'ÚLTIMO SURTIDO DEL TANQUE',tankMeterPhoto:'Tomar foto del horómetro del tanque',meterPhoto:'Tomar foto del horómetro',confirmReading:'Confirmar lectura',estimatedRemaining:'Combustible estimado restante',estimatedMissing:'Faltante estimado',consumptionRate:'Consumo estimado',lastMeterPhoto:'Última foto de horómetro',fillDates:'Fechas de llenado / surtido',tankCode:'Código / Serial'},
+ en:{edit:'Edit',more:'More',tower:'LIGHT TOWER',tank:'TANK',update:'Update',currentLocation:'CURRENT LOCATION',priority:'PRIORITY',levels:'CURRENT LEVELS',fuel:'FUEL',available:'Available',quick:'QUICK ACTION',fuelRefill:'Refuel Fuel',defRefill:'Refuel DEF',changeLocation:'Change Location',reportDamage:'Report Damage',history:'HISTORY',movements:'MOVEMENTS',refuels:'REFUELS',repairs:'DAMAGE / REPAIRS',nextRefill:'RECOMMENDED NEXT REFUEL',highPriority:'HIGH PRIORITY',home:'Home',towers:'Towers',tanks:'Tanks',reports:'Reports',selectTower:'Select tower',selectTank:'Select tank',searchList:'Search list',searchTower:'Search tower',searchTank:'Search tank',noResults:'No results',operational:'OPERATIONAL',active:'ACTIVE',meter:'CURRENT HOUR METER',capacity:'Fuel capacity',tankCapacity:'Capacity',currentLevel:'Current level',removable:'Removable',yes:'Yes',no:'No',description:'Description',save:'Save',cancel:'Cancel',replaceTower:'Replace Tower',replaceTank:'Replace Tank',lastReading:'Last reading',lastRefill:'Last refuel',lastFill:'Last fill',from:'From',estimated:'Estimated',priorityText:'Calculated from average consumption and location priority.',tankMeter:'CURRENT TANK HOUR METER',tankLastSupply:'LAST TANK REFUEL',tankMeterPhoto:'Take tank hour-meter photo',meterPhoto:'Take hour meter photo',confirmReading:'Confirm reading',estimatedRemaining:'Estimated fuel remaining',estimatedMissing:'Estimated amount needed',consumptionRate:'Estimated consumption',lastMeterPhoto:'Last hour meter photo',fillDates:'Fill / dispensing dates',tankCode:'Code / Serial'}
 };
 function t(k){return I[db.lang][k]||k}
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
@@ -353,11 +354,47 @@ function renderDynamicSummary(x){
    <div class="dynamic-grid">
      <div class="dynamic-box"><div class="k">${t('tankCapacity')}</div><div class="v">${fmt(x.capacity*3.78541)} L</div></div>
      <div class="dynamic-box"><div class="k">${t('currentLevel')}</div><div class="v">${fmt(x.current*3.78541)} L</div></div>
+     <div class="dynamic-box"><div class="k">${t('tankMeter')}</div><div class="v">${fmt(x.hourMeter||0)} h</div></div>
+     <div class="dynamic-box"><div class="k">${t('tankLastSupply')}</div><div class="v" style="font-size:11px">${x.lastFill?date(x.lastFill):'—'}</div></div>
    </div>
+   <button class="camera-btn" onclick="tankMeterCamera.click()">📷 ${t('tankMeterPhoto')}</button>
+   <div class="calc-note">${db.lang==='es'?'La foto no se guarda. Se registra automáticamente el día y la hora y luego confirmas la lectura del horómetro.':'The photo is not saved. The day and time are recorded automatically, then you confirm the hour-meter reading.'}</div>
    <div class="calc-note"><b>${t('description')}:</b> ${x.description||'—'}<br><b>${t('currentLocation')}:</b> ${x.location||'—'}</div>
-   <div class="calc-note"><b>${t('fillDates')}:</b><br>${moves.length?moves.map(m=>`${date(m.date)} · ${m.kind==='fuel'?'-':''}${fmt(m.amount||0)} gal`).join('<br>'):'—'}</div>`;
+   <div class="calc-note"><b>${t('fillDates')}:</b><br>${moves.length?moves.map(m=>`${date(m.date)} · ${m.kind==='fuel'?'-':''}${fmt(m.amount||0)} gal`).join('<br>'):(x.lastFill?date(x.lastFill):'—')}</div>`;
  }
 }
+
+function tankMeterPhotoTaken(e){
+ const file=e.target.files&&e.target.files[0];
+ if(!file)return;
+ const x=active();
+ if(db.type!=='tank')return;
+ x.lastMeterPhotoTime=new Date().toISOString();
+
+ const message=db.lang==='es'
+   ?'Confirma la lectura visible del horómetro del tanque (horas):'
+   :'Confirm the visible tank hour-meter reading (hours):';
+
+ const val=prompt(message,x.hourMeter||'');
+ if(val!==null && val!==''){
+   const n=Number(val);
+   if(!Number.isNaN(n))x.hourMeter=n;
+ }
+
+ // Register a meter event for date/day/time history.
+ db.history.push({
+   id:Date.now(),
+   kind:'tank_meter',
+   tankId:x.id,
+   date:x.lastMeterPhotoTime,
+   hourMeter:x.hourMeter,
+   location:x.location
+ });
+ save();
+ render();
+ e.target.value='';
+}
+
 function meterPhotoTaken(e){
  const file=e.target.files&&e.target.files[0];
  if(!file)return;
@@ -412,14 +449,14 @@ function editDemoItem(id){
   ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Modelo':'Model'}</label><input id="dModel" value="${x.model||''}"></div>`:''}
   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><input id="dLoc" value="${x.location||''}"></div>
   <div class="field"><label>${db.lang==='es'?'Descripción':'Description'}</label><textarea id="dDesc">${x.description||''}</textarea></div>
-  ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Capacidad combustible (gal)':'Fuel capacity (gal)'}</label><input id="dCap" type="number" value="${x.fuelCapacity||0}"></div>`:`<div class="field"><label>${db.lang==='es'?'Capacidad (gal)':'Capacity (gal)'}</label><input id="dCap" type="number" value="${x.capacity||0}"></div><div class="field"><label>${db.lang==='es'?'Nivel actual (gal)':'Current level (gal)'}</label><input id="dCur" type="number" value="${x.current||0}"></div>`}
+  ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Capacidad combustible (gal)':'Fuel capacity (gal)'}</label><input id="dCap" type="number" value="${x.fuelCapacity||0}"></div>`:`<div class="field"><label>${db.lang==='es'?'Capacidad (gal)':'Capacity (gal)'}</label><input id="dCap" type="number" value="${x.capacity||0}"></div><div class="field"><label>${db.lang==='es'?'Nivel actual (gal)':'Current level (gal)'}</label><input id="dCur" type="number" value="${x.current||0}"></div><div class="field"><label>${db.lang==='es'?'Horómetro actual':'Current hour meter'}</label><input id="dHour" type="number" step="0.1" value="${x.hourMeter||0}"></div>`}
   <div class="btns"><button class="btn secondary" onclick="openDemoList('${db.type}')">${db.lang==='es'?'Cancelar':'Cancel'}</button><button class="btn primary" onclick="saveDemoEdit('${id}')">${db.lang==='es'?'Guardar':'Save'}</button></div>`);
 }
 function saveDemoEdit(id){
  const x=(db.type==='tower'?db.towers:db.tanks).find(v=>v.id===id); if(!x)return;
  x.serial=dSerial.value.trim();x.location=dLoc.value.trim();x.description=dDesc.value.trim();
  if(db.type==='tower'){x.model=dModel.value.trim();x.fuelCapacity=Number(dCap.value)||0;}
- else{x.capacity=Number(dCap.value)||0;x.current=Number(dCur.value)||0;}
+ else{x.capacity=Number(dCap.value)||0;x.current=Number(dCur.value)||0;x.hourMeter=Number(dHour.value)||0;}
  save();openDemoList(db.type);
 }
 function openNewDemoItem(){
@@ -435,7 +472,7 @@ function saveNewDemoItem(){
  if(db.type==='tower'){
    const id='A'+Date.now();db.towers.push({id,serial:nSerial.value.trim(),type:'Torre de luz',model:nModel.value.trim(),code:'',fuelCapacity:110,defCapacity:8,location:nLoc.value.trim(),description:nDesc.value.trim(),status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:0,defLevel:0,priority:99,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null});db.activeTower=id;
  }else{
-   const id='T'+Date.now();db.tanks.push({id,name:'Tanque',serial:nSerial.value.trim(),capacity:552.4,current:0,location:nLoc.value.trim(),description:nDesc.value.trim(),status:'Activo',removable:true,lastFill:null});db.activeTank=id;
+   const id='T'+Date.now();db.tanks.push({id,name:'Tanque',serial:nSerial.value.trim(),capacity:552.4,current:0,location:nLoc.value.trim(),description:nDesc.value.trim(),status:'Activo',removable:true,lastFill:null,hourMeter:0,lastMeterPhotoTime:null});db.activeTank=id;
  }
  save();openDemoList(db.type);
 }
