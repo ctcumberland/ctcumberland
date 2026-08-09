@@ -232,7 +232,7 @@ body.tank-selected .photo-card img{background:#f7f8fa!important}
    <section class="alert"><div>🔔 <b data-i18n="nextRefill">PRÓXIMO SURTIDO RECOMENDADO</b><br><span id="nextRefillText"></span></div><div>⚠️ <b data-i18n="highPriority">PRIORITARIO</b><br><span id="priorityAlert"></span></div></section>
  </main>
  <nav class="bottom">
-   <button><span class="ico">⌂</span><span data-i18n="home">Inicio</span></button>
+   <button onclick="goHome()"><span class="ico">⌂</span><span data-i18n="home">Inicio</span></button>
    <button class="active" onclick="openActiveTankList()"><span class="ico">🗼</span><span data-i18n="towers">Torres</span></button>
    <button onclick="setType('tank')"><span class="ico">🧰</span><span data-i18n="tanks">Tanques</span></button>
    <button onclick="openFuel()"><span class="ico">⛽</span><span data-i18n="fuel">Combustible</span></button>
@@ -784,6 +784,16 @@ function weeklyCloseReminder(){
  setTimeout(()=>{ if(confirm(db.lang==='es'?'Son las 2:00 PM. El reporte final semanal está listo. ¿Abrir Reportes?':'It is 2:00 PM. The final weekly report is ready. Open Reports?')) openReport(); },300);
 }
 
+
+
+function goHome(){
+  db.type='tower';
+  if(db.towers && db.towers.length && !db.activeTower) db.activeTower=db.towers[0].id;
+  save();
+  closeModal();
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
 function openActiveTankList(){
   db.type='tank';
