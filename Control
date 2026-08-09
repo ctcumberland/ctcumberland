@@ -1,305 +1,55 @@
 from pathlib import Path
 
-import base64, re
+from PIL import Image
 
-src = Path("/mnt/data/CT_Cumberland_Control_Total_v3.html")
+import io, base64, re
+
+src = Path("/mnt/data/CT_Cumberland_Control_Total_v4_BILINGUAL.html")
 
 html = src.read_text(encoding="utf-8")
 
-es_img = Path("/mnt/data/C1BC027E-F7CC-4033-BCB7-EF3EBE9BA549.jpeg")
+def compress_data_uri(path, max_width=900, quality=68):
 
-en_img = Path("/mnt/data/a_high_detail_app_ui_screenshot_of_a_fuel_tank_man.png")
+    im = Image.open(path).convert("RGB")
 
-es_b64 = base64.b64encode(es_img.read_bytes()).decode("ascii")
+    if im.width > max_width:
 
-en_b64 = base64.b64encode(en_img.read_bytes()).decode("ascii")
+        h = round(im.height * max_width / im.width)
 
-# Upgrade key
+        im = im.resize((max_width, h), Image.Resampling.LANCZOS)
 
-html = html.replace("const KEY='ctc_control_total_v3';", "const KEY='ctc_control_total_v4';")
+    buf = io.BytesIO()
 
-# Replace image with switchable image element.
+    im.save(buf, format="JPEG", quality=quality, optimize=True, progressive=True)
 
-html = re.sub(
+    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode("ascii"), len(buf.getvalue())
 
-    r'<img class="screen-img" src="data:image/jpeg;base64,[^"]+" alt="CT Cumberland Torre LT-458921">',
+es_uri, es_bytes = compress_data_uri(Path("/mnt/data/C1BC027E-F7CC-4033-BCB7-EF3EBE9BA549.jpeg"))
 
-    f'<img id="mainScreen" class="screen-img" src="data:image/jpeg;base64,{es_b64}" alt="CT Cumberland">',
+en_uri, en_bytes = compress_data_uri(Path("/mnt/data/a_high_detail_app_ui_screenshot_of_a_fuel_tank_man.png"))
 
-    html,
+# Replace embedded screen image and bilingual constants with compressed JPEG data URIs.
 
-    count=1
+html = re.sub(r'<img id="mainScreen" class="screen-img" src="data:image/jpeg;base64,[^"]+" alt="CT Cumberland">',
 
-)
+              f'<img id="mainScreen" class="screen-img" src="{es_uri}" alt="CT Cumberland">', html, count=1)
 
-# Add language selector CSS before </style>
+html = re.sub(r"const ES_SCREEN='data:image/jpeg;base64,[^']+';", f"const ES_SCREEN='{es_uri}';", html, count=1)
 
-lang_css = r"""
+html = re.sub(r"const EN_SCREEN='data:image/png;base64,[^']+';", f"const EN_SCREEN='{en_uri}';", html, count=1)
 
-.lang-switch{
+# Add GitHub Pages friendly title and no external dependencies.
 
-  position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+html = html.replace("<title>CT Cumberland - Control Total</title>", "<title>CT Cumberland | Fuel Control</title>")
 
-  z-index:95;background:#fff;border:1px solid #dfe6ee;border-radius:999px;padding:3px;
-
-  display:flex;gap:2px;box-shadow:0 4px 14px rgba(15,23,42,.12)
-
-}
-
-.lang-switch button{border:0;background:transparent;border-radius:999px;padding:6px 11px;font-size:11px;font-weight:800;color:#667085}
-
-.lang-switch button.active{background:#0b4db5;color:#fff}
-
-"""
-
-html = html.replace("</style>", lang_css + "\n</style>", 1)
-
-# Add selector after body
-
-selector = r"""
-
-<div class="lang-switch">
-
-  <button id="langES" onclick="setLanguage('es')">ES</button>
-
-  <button id="langEN" onclick="setLanguage('en')">EN</button>
-
-</div>
-
-"""
-
-html = html.replace("<body>", "<body>\n"+selector, 1)
-
-# Insert bilingual JS immediately after <script>
-
-i18n_js = f"""
-
-const ES_SCREEN='data:image/jpeg;base64,{es_b64}';
-
-const EN_SCREEN='data:image/png;base64,{en_b64}';
-
-const LANG_KEY='ctc_language_v1';
-
-let appLang=localStorage.getItem(LANG_KEY)||((navigator.language||'es').toLowerCase().startsWith('es')?'es':'en');
-
-const DICT={{
-
-'Resumen general':'General Summary','Surtir combustible':'Refuel Fuel','Surtir DEF':'Refuel DEF','Cambiar ubicación':'Change Location',
-
-'Reportar daño':'Report Damage','Reemplazar torre / generador':'Replace Tower / Generator','Editar unidad':'Edit Unit',
-
-'Torres y generadores':'Towers & Generators','Agregar unidad':'Add Unit','Tanques e inventario':'Tanks & Inventory',
-
-'Entrada de inventario':'Inventory Entry','Editar tanque':'Edit Tank','Sustituir tanque':'Replace Tank','Nuevo tanque':'New Tank',
-
-'Historial':'History','Reportes':'Reports','Recordatorios':'Reminders','Más opciones':'More Options','Configuración':'Settings',
-
-'Reporte operativo 4:00 PM':'4:00 PM Operational Report','COMBUSTIBLE':'FUEL','DEF':'DEF','Ubicación':'Location',
-
-'Ubicación actual':'Current Location','Serial':'Serial','Nombre':'Name','Tipo':'Type','Capacidad':'Capacity','Capacidad total':'Total Capacity',
-
-'Inventario actual':'Current Inventory','Inventario inicial':'Initial Inventory','Cantidad recibida':'Amount Received',
-
-'Cantidad surtida (gal)':'Amount Refueled (gal)','Fecha y hora':'Date & Time','Nota':'Note','Nota / proveedor':'Note / Supplier',
-
-'Nota / proveedor':'Note / Supplier','Descripción':'Description','Descripción breve':'Short Description','Nueva ubicación':'New Location',
-
-'Unidad / Serial':'Unit / Serial','Unidad':'Unit','Tanque de origen':'Source Tank','Almacenamiento DEF':'DEF Storage',
-
-'Horómetro (si aplica)':'Hour Meter (if applicable)','Foto del horómetro':'Hour Meter Photo',
-
-'La foto no se guarda; solo registra fecha/hora de captura.':'The photo is not saved; it only records capture date/time.',
-
-'Guardar surtido':'Save Refuel','Guardar DEF':'Save DEF','Guardar':'Save','Cancelar':'Cancel','Actualizar':'Update','Registrar':'Register',
-
-'Registrar daño':'Register Damage','Registrar reemplazo':'Register Replacement','Agregar tanque':'+ Add Tank','Agregar':'+ Add',
-
-'Entrada':'Entry','Editar':'Edit','Sustituir':'Replace','Estado':'Status','Operativa':'Operational','En reparación':'Under Repair',
-
-'Fuera de servicio':'Out of Service','Reemplazada':'Replaced','Activo':'Active','Sustituido':'Replaced',
-
-'Motivo':'Reason','Motivo del reemplazo':'Replacement Reason','Serial nuevo':'New Serial','Serial de la torre nueva':'New Tower Serial',
-
-'Nombre del tanque nuevo':'New Tank Name','Serial del tanque nuevo':'New Tank Serial','Serial nuevo':'New Serial',
-
-'Capacidad combustible':'Fuel Capacity','Capacidad DEF':'DEF Capacity','Marca / Modelo':'Brand / Model',
-
-'Código interno':'Internal Code','Intervalo recordatorio (horas)':'Reminder Interval (hours)',
-
-'Intervalo estándar de surtido (horas)':'Standard Refuel Interval (hours)','Avisar con anticipación (horas)':'Notify In Advance (hours)',
-
-'Recordatorio base':'Base Reminder','Prioridad actual':'Current Priority','Datos locales':'Local Data',
-
-'La información se guarda en este dispositivo.':'Information is stored on this device.',
-
-'Respaldo / Restauración':'Backup / Restore','Crear respaldo':'Create Backup','Restaurar':'Restore',
-
-'Habilitar notificaciones':'Enable Notifications','Notificaciones':'Notifications',
-
-'Reporte Lunes / Miércoles / Viernes':'Monday / Wednesday / Friday Report','Abrir reporte 4:00 PM':'Open 4:00 PM Report',
-
-'Imprimir / PDF':'Print / PDF','Exportar CSV':'Export CSV','COMBUSTIBLE SURTIDO':'FUEL DISPENSED',
-
-'TORRES / GENERADORES':'TOWERS / GENERATORS','TANQUES UTILIZADOS':'TANKS USED','atendidos':'serviced','tanques':'tanks',
-
-'No hay unidades surtidas hoy.':'No units were refueled today.','Reporte de cierre disponible.':'Closing report is available.',
-
-'El cierre corresponde a lunes, miércoles y viernes a las 4:00 PM.':'Closing report runs Monday, Wednesday, and Friday at 4:00 PM.',
-
-'Próximo':'Next','Próximo surtido':'Next Refuel','Último':'Last','Último surtido':'Last Refuel',
-
-'Prioridades':'Priorities','ALERTAS':'ALERTS','UNIDADES ACTIVAS':'ACTIVE UNITS','ALERTAS CRÍTICAS':'CRITICAL ALERTS',
-
-'PRIORITARIO':'HIGH PRIORITY','PRÓXIMO':'UPCOMING','NORMAL':'NORMAL','VENCIDO':'OVERDUE',
-
-'Combustible surtido hoy':'Fuel Dispensed Today','DEF surtido hoy':'DEF Dispensed Today','Unidades atendidas':'Units Serviced',
-
-'Sin surtidos hoy.':'No refuels today.','Todo':'All','Surtidos':'Refuels','Movimientos':'Movements','Daños':'Damage',
-
-'Daño / Reparación':'Damage / Repair','Surtido de Combustible':'Fuel Refuel','Surtido de DEF':'DEF Refuel',
-
-'Cambio de Ubicación':'Location Change','Reemplazo':'Replacement','Entrada a tanque':'Tank Entry',
-
-'Sustitución de tanque':'Tank Replacement','Buscar serial o ubicación':'Search serial or location',
-
-'Combustible':'Fuel','Disponible':'Available','de':'of','gal disponibles':'gal available',
-
-'Actual':'Current','Actual:':'Current:','Ubicación:':'Location:','Capacidad:':'Capacity:',
-
-'Foto tomada:':'Photo taken:','Próximo recordatorio:':'Next reminder:','Próximo recordatorio base:':'Base next reminder:',
-
-'Aún no hay registros.':'No records yet.','Aún no hay surtidos registrados.':'No refuels recorded yet.',
-
-'Sin datos':'No data','Reporte Diario':'Daily Report','Reporte diario':'Daily Report','Reporte Operativo':'Operational Report',
-
-'Cierre 4:00 PM':'4:00 PM Closing','Unidades surtidas':'Refueled Units','Tanques utilizados':'Tanks Used',
-
-'Configuración de recordatorios':'Reminder Settings','Permiso no concedido.':'Permission not granted.',
-
-'Notificaciones habilitadas.':'Notifications enabled.','Este navegador no admite notificaciones web.':'This browser does not support web notifications.',
-
-'Respaldo restaurado.':'Backup restored.','Archivo de respaldo inválido.':'Invalid backup file.',
-
-'Cantidad inválida.':'Invalid amount.','Supera la capacidad del tanque.':'Exceeds tank capacity.',
-
-'Inventario mayor que capacidad.':'Inventory exceeds capacity.','Nombre y serial son obligatorios.':'Name and serial are required.',
-
-'El serial nuevo es obligatorio.':'The new serial is required.','Serial y ubicación son obligatorios.':'Serial and location are required.',
-
-'Completa los datos.':'Complete all fields.','Completa unidad, tanque, cantidad, fecha y hora.':'Complete unit, tank, amount, date, and time.',
-
-'La cantidad supera el inventario disponible del tanque.':'The amount exceeds available tank inventory.',
-
-'La cantidad supera el inventario disponible de DEF.':'The amount exceeds available DEF inventory.',
-
-'Indica ubicación y descripción.':'Enter location and description.','Describe el daño.':'Describe the damage.',
-
-'Indica el serial nuevo.':'Enter the new serial.','Daño registrado.':'Damage registered.',
-
-'Ubicación actualizada.':'Location updated.','Unidad actualizada.':'Unit updated.',
-
-'Reemplazo registrado y nueva unidad creada.':'Replacement registered and new unit created.',
-
-'Torre de luz':'Light Tower','Generador grande':'Large Generator'
-
-}};
-
-function tr(s){{
-
- if(appLang==='es'||s==null)return s;
-
- let out=String(s);
-
- Object.keys(DICT).sort((a,b)=>b.length-a.length).forEach(k=>{{out=out.split(k).join(DICT[k])}});
-
- return out;
-
-}}
-
-function trHtml(s){{return appLang==='es'?s:tr(s)}}
-
-function applyLanguage(){{
-
- document.documentElement.lang=appLang;
-
- const esBtn=document.getElementById('langES'),enBtn=document.getElementById('langEN');
-
- if(esBtn)esBtn.classList.toggle('active',appLang==='es');
-
- if(enBtn)enBtn.classList.toggle('active',appLang==='en');
-
- const img=document.getElementById('mainScreen');
-
- if(img)img.src=appLang==='es'?ES_SCREEN:EN_SCREEN;
-
-}}
-
-function setLanguage(lang){{
-
- appLang=lang;localStorage.setItem(LANG_KEY,lang);applyLanguage();
-
- closeModal();
-
-}}
-
-const nativeAlert=window.alert.bind(window);
-
-window.alert=(msg)=>nativeAlert(tr(msg));
-
-const nativeConfirm=window.confirm.bind(window);
-
-window.confirm=(msg)=>nativeConfirm(tr(msg));
-
-"""
-
-html = html.replace("<script>", "<script>\n"+i18n_js, 1)
-
-# Modify show() to translate.
-
-html = html.replace(
-
-"function show(title,html){document.getElementById('title').textContent=title;document.getElementById('body').innerHTML=html;document.getElementById('modal').classList.add('show')}",
-
-"function show(title,html){document.getElementById('title').textContent=tr(title);document.getElementById('body').innerHTML=trHtml(html);document.getElementById('modal').classList.add('show')}",
-
-1
-
-)
-
-# Translate notification strings and generated print titles by replacing literal strings in the source.
-
-replacements = {
-
-"'CT Cumberland - Próximo surtido'":"(appLang==='es'?'CT Cumberland - Próximo surtido':'CT Cumberland - Next Refuel')",
-
-"'CT Cumberland - Reporte de cierre'":"(appLang==='es'?'CT Cumberland - Reporte de cierre':'CT Cumberland - Closing Report')",
-
-"body:'Reporte de combustible, torres y tanques disponible para las 4:00 PM.'":"body:tr('Reporte de combustible, torres y tanques disponible para las 4:00 PM.')",
-
-}
-
-for a,b in replacements.items():
-
-    html = html.replace(a,b)
-
-# Add missing dictionary phrase
-
-html = html.replace(
-
-"'Torre de luz':'Light Tower','Generador grande':'Large Generator'",
-
-"'Reporte de combustible, torres y tanques disponible para las 4:00 PM.':'Fuel, tower, and tank closing report is available for 4:00 PM.','Torre de luz':'Light Tower','Generador grande':'Large Generator'"
-
-)
-
-# Ensure language applied at startup.
-
-html = html.replace("setInterval(checkAlerts,60*60*1000);", "setInterval(checkAlerts,60*60*1000);\napplyLanguage();", 1)
-
-out = Path("/mnt/data/CT_Cumberland_Control_Total_v4_BILINGUAL.html")
+out = Path("/mnt/data/index_github_single.html")
 
 out.write_text(html, encoding="utf-8")
 
-print(out)
+print(f"Spanish image: {es_bytes/1024:.1f} KB")
 
-print(f"Tamaño: {out.stat().st_size/1024:.1f} KB")
+print(f"English image: {en_bytes/1024:.1f} KB")
+
+print(f"Final index: {out.stat().st_size/1024:.1f} KB")
+
+print(out)
