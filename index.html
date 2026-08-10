@@ -329,7 +329,7 @@ body.tank-selected .photo-card img{background:#f7f8fa!important}
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="sheet-head"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
 
 <script>
-const KEY='ctc_native_hd_v44_location_submenus';
+const KEY='ctc_native_hd_v45_clean_locations';
 const seed={
  lang:null,type:'tower',activeTower:'A1',activeTank:'T1',
  towers:[
@@ -709,6 +709,20 @@ function fullLocationLabel(x){
 
 
 const ZONE_3A_4A_7A=['3A','4A','7A'];
+const BASE_LOCATIONS=[
+ 'Chill Zone','Medical Trailer','Oficinas Mobil','Orientación',
+ 'Sitemetric','Tienda de campaña','Trailer City'
+];
+function customLocations(){
+ if(!Array.isArray(db.customLocations))db.customLocations=[];
+ return db.customLocations;
+}
+function allSelectableLocations(){
+ const set=new Set(BASE_LOCATIONS);
+ customLocations().forEach(x=>{if(x&&x.name)set.add(x.name)});
+ return [...set];
+}
+
 
 function baseAssetLocation(x){
  return x.location||'—';
@@ -734,7 +748,8 @@ function childZoneLabel(zone,locationName){
 }
 
 function locationNeedsArea(locationName){
- return ['Chill Zone','Tienda de campaña','Oficinas Mobil'].includes(locationName);
+ const custom=customLocations().find(x=>x.name===locationName);
+ return ['Chill Zone','Tienda de campaña','Oficinas Mobil'].includes(locationName) || !!(custom&&custom.defaultArea);
 }
 
 function locationNeedsCompany(locationName){
@@ -742,11 +757,7 @@ function locationNeedsCompany(locationName){
 }
 
 function getBaseLocationsForCategory(category){
- const set=new Set();
- equipmentListForCategory(category).forEach(x=>{
-   if(x.location)set.add(x.location);
- });
- return [...set].sort((a,b)=>a.localeCompare(b));
+ return allSelectableLocations();
 }
 
 function getCompaniesForCategoryLocation(category,locationName){
@@ -778,6 +789,42 @@ function getZonesForCategoryLocation(category,locationName,company=''){
    ZONE_3A_4A_7A.forEach(z=>set.add(z));
  }
  return [...set];
+}
+
+
+function openAddLocation(category){
+ openModal(db.lang==='es'?'Agregar nuevo lugar':'Add new location',`
+   <div class="field">
+    <label>${db.lang==='es'?'Nombre del lugar':'Location name'}</label>
+    <input id="newLocationName" placeholder="${db.lang==='es'?'Ej.: Patio de equipos':'E.g. Equipment Yard'}">
+   </div>
+   <div class="field">
+    <label>${db.lang==='es'?'Área':'Area'}</label>
+    <select id="newLocationArea">
+      <option value="">${db.lang==='es'?'Sin área específica':'No specific area'}</option>
+      <option value="3A">3A</option>
+      <option value="4A">4A</option>
+      <option value="7A">7A</option>
+    </select>
+   </div>
+   <div class="btns">
+    <button class="btn secondary" onclick="openEquipmentMenu('${category}')">${db.lang==='es'?'Cancelar':'Cancel'}</button>
+    <button class="btn primary" onclick="saveNewLocation('${category}')">${db.lang==='es'?'Guardar lugar':'Save location'}</button>
+   </div>
+ `);
+}
+function saveNewLocation(category){
+ const name=(document.getElementById('newLocationName')?.value||'').trim();
+ const area=document.getElementById('newLocationArea')?.value||'';
+ if(!name)return alert(db.lang==='es'?'Escribe el nombre del lugar.':'Enter the location name.');
+ const exists=allSelectableLocations().some(x=>x.toLowerCase()===name.toLowerCase());
+ if(!exists)customLocations().push({name,defaultArea:area});
+ else{
+   const c=customLocations().find(x=>x.name.toLowerCase()===name.toLowerCase());
+   if(c)c.defaultArea=area;
+ }
+ save();
+ openEquipmentMenu(category);
 }
 
 function openLocationSubmenu(category,locationName){
@@ -895,29 +942,30 @@ function selectTopCategory(category){
 }
 
 function openEquipmentMenu(category){
-  document.querySelectorAll('#towerType,#tankType,#generatorType').forEach(el=>el.classList.remove('active'));
-  const _topMap={light_tower:'towerType',tank:'tankType',generator:'generatorType'};
-  const _topCard=document.getElementById(_topMap[category]);
-  if(_topCard)_topCard.classList.add('active');
+ document.querySelectorAll('#towerType,#tankType,#generatorType').forEach(el=>el.classList.remove('active'));
+ const topMap={light_tower:'towerType',tank:'tankType',generator:'generatorType'};
+ const topCard=document.getElementById(topMap[category]);
+ if(topCard)topCard.classList.add('active');
 
-  if(category==='light_tower')setActiveNav('light_tower');
-  else if(category==='tank')setActiveNav('tank');
-  else if(category==='generator')setActiveNav('generator');
+ if(category==='light_tower')setActiveNav('light_tower');
+ else if(category==='tank')setActiveNav('tank');
+ else if(category==='generator')setActiveNav('generator');
 
-  window._equipmentCategory=category;
-  localStorage.setItem('ctc_selected_equipment_category',category);
+ window._equipmentCategory=category;
+ localStorage.setItem('ctc_selected_equipment_category',category);
 
-  const locations=getBaseLocationsForCategory(category);
-
-  openModal(db.lang==='es'?'Seleccionar lugar':'Select location',`
-    <div class="location-list">
-      ${locations.length?locations.map(loc=>`
-        <button class="location-btn" onclick="openLocationSubmenu('${category}',${JSON.stringify(loc).replace(/"/g,'&quot;')})">
-          <b>${loc}</b>
-        </button>`).join(''):
-        `<div class="list-item">${db.lang==='es'?'No hay lugares registrados para esta categoría.':'No locations registered for this category.'}</div>`}
-    </div>
-  `);
+ const locations=getBaseLocationsForCategory(category);
+ openModal(db.lang==='es'?'Seleccionar lugar':'Select location',`
+   <div class="location-list">
+    ${locations.map(loc=>`
+      <button class="location-btn" onclick="openLocationSubmenu('${category}',${JSON.stringify(loc).replace(/"/g,'&quot;')})">
+       <b>${loc}</b>
+      </button>`).join('')}
+   </div>
+   <button class="btn primary" style="width:100%;margin-top:12px" onclick="openAddLocation('${category}')">
+     ＋ ${db.lang==='es'?'Agregar nuevo lugar':'Add new location'}
+   </button>
+ `);
 }
 function openCategoryLocation(category,locationLabel){
   const list=equipmentListForCategory(category).filter(x=>fullLocationLabel(x)===locationLabel);
@@ -1025,7 +1073,7 @@ function editDemoItem(id){
   ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Modelo':'Model'}</label><input id="dModel" value="${x.model||''}"></div>`:''}
   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="dLoc" onchange="handleLocationChange('dLoc','dOfficeWrap','dOffice');updateLocationChildren('dLoc','dOfficeWrap','dOffice','dTentWrap','dTent');updateSitemetricZone('dLoc','dSitemetricZoneWrap','dSitemetricZone');updateArea347('dLoc','dAreaWrap','dArea')">${locationOptions(x.location||'')}</select></div>
   <div class="field" id="dSitemetricZoneWrap" style="display:${isSitemetricLocation(x.location)?'flex':'none'}"><label>${db.lang==='es'?'Área Sitemetric':'Sitemetric area'}</label><select id="dSitemetricZone">${sitemetricZoneOptions(x.sitemetricZone||'')}</select></div>
-  <div class="field" id="dAreaWrap" style="display:${[\'Chill Zone\',\'Tienda de campaña\',\'Oficinas Mobil\'].includes(x.location)?\'flex\':\'none\'}"><label>${db.lang===\'es\'?\'Área 3A / 4A / 7A\':\'Area 3A / 4A / 7A\'}</label><select id="dArea">${areaOptions(x.areaZone||'')}</select></div>
+  <div class="field" id="dAreaWrap" style="display:${['Chill Zone','Tienda de campaña','Oficinas Mobil'].includes(x.location)?'flex':'none'}"><label>${db.lang==='es'?'Área 3A / 4A / 7A':'Area 3A / 4A / 7A'}</label><select id="dArea">${areaOptions(x.areaZone||'')}</select></div>
   <div class="field" id="dOfficeWrap" style="display:${locationIsMobil(x.location)?'flex':'none'}"><label>${db.lang==='es'?'Empresa en Oficinas Mobil':'Company in Oficinas Mobil'}</label><select id="dOffice">${mobileOfficeOptions(x.mobileOffice||'')}</select></div>
   <div class="field" id="dTentWrap" style="display:${locationIsCampaignTent(x.location)?'flex':'none'}"><label>${db.lang==='es'?'Tienda':'Tent'}</label><select id="dTent">${campaignTentOptions(x.campaignTent||'')}</select></div>
   <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
@@ -1072,7 +1120,7 @@ function openNewDemoItem(){
    <div class="field"><label>${db.lang==='es'?'Modelo / Tipo':'Model / Type'}</label><input id="nModel"></div>
    <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="nLoc" onchange="handleLocationChange('nLoc','nOfficeWrap','nOffice');updateLocationChildren('nLoc','nOfficeWrap','nOffice','nTentWrap','nTent');updateSitemetricZone('nLoc','nSitemetricZoneWrap','nSitemetricZone');updateArea347('nLoc','nAreaWrap','nArea')">${locationOptions()}</select></div>
    <div class="field" id="nSitemetricZoneWrap" style="display:none"><label>${db.lang==='es'?'Área Sitemetric':'Sitemetric area'}</label><select id="nSitemetricZone">${sitemetricZoneOptions()}</select></div>
-   <div class="field" id="nAreaWrap" style="display:none"><label>${db.lang===\'es\'?\'Área 3A / 4A / 7A\':\'Area 3A / 4A / 7A\'}</label><select id="nArea">${areaOptions()}</select></div>
+   <div class="field" id="nAreaWrap" style="display:none"><label>${db.lang==='es'?'Área 3A / 4A / 7A':'Area 3A / 4A / 7A'}</label><select id="nArea">${areaOptions()}</select></div>
    <div class="field" id="nOfficeWrap" style="display:none"><label>${db.lang==='es'?'Empresa en Oficinas Mobil':'Company in Oficinas Mobil'}</label><select id="nOffice">${mobileOfficeOptions()}</select></div>
    <div class="field" id="nTentWrap" style="display:none"><label>${db.lang==='es'?'Tienda':'Tent'}</label><select id="nTent">${campaignTentOptions()}</select></div>
    <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
@@ -1091,7 +1139,7 @@ function openNewDemoItem(){
    <div class="field"><label>${db.lang==='es'?'Color':'Color'}</label><input id="nColor"></div>
    <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="nLoc" onchange="handleLocationChange('nLoc','nOfficeWrap','nOffice');updateLocationChildren('nLoc','nOfficeWrap','nOffice','nTentWrap','nTent');updateSitemetricZone('nLoc','nSitemetricZoneWrap','nSitemetricZone');updateArea347('nLoc','nAreaWrap','nArea')">${locationOptions()}</select></div>
    <div class="field" id="nSitemetricZoneWrap" style="display:none"><label>${db.lang==='es'?'Área Sitemetric':'Sitemetric area'}</label><select id="nSitemetricZone">${sitemetricZoneOptions()}</select></div>
-   <div class="field" id="nAreaWrap" style="display:none"><label>${db.lang===\'es\'?\'Área 3A / 4A / 7A\':\'Area 3A / 4A / 7A\'}</label><select id="nArea">${areaOptions()}</select></div>
+   <div class="field" id="nAreaWrap" style="display:none"><label>${db.lang==='es'?'Área 3A / 4A / 7A':'Area 3A / 4A / 7A'}</label><select id="nArea">${areaOptions()}</select></div>
    <div class="field" id="nOfficeWrap" style="display:none"><label>${db.lang==='es'?'Empresa en Oficinas Mobil':'Company in Oficinas Mobil'}</label><select id="nOffice">${mobileOfficeOptions()}</select></div>
    <div class="field" id="nTentWrap" style="display:none"><label>${db.lang==='es'?'Tienda':'Tent'}</label><select id="nTent">${campaignTentOptions()}</select></div>
    <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
@@ -1393,7 +1441,7 @@ function openFuel(){
    <div class="field"><label>${db.lang==='es'?'Capacidad de almacenamiento (gal)':'Storage capacity (gal)'}</label><input id="fuelNewCapacity" type="number" min="0" step=".1"></div>
    <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="fuelNewLocation" onchange="handleLocationChange('fuelNewLocation','fuelNewOfficeWrap','fuelNewOffice');updateLocationChildren('fuelNewLocation','fuelNewOfficeWrap','fuelNewOffice','fuelNewTentWrap','fuelNewTent');updateSitemetricZone('fuelNewLocation','fuelNewSitemetricZoneWrap','fuelNewSitemetricZone');updateArea347('fuelNewLocation','fuelNewAreaWrap','fuelNewArea')">${locationOptions()}</select></div>
    <div class="field" id="fuelNewSitemetricZoneWrap" style="display:none"><label>${db.lang==='es'?'Área Sitemetric':'Sitemetric area'}</label><select id="fuelNewSitemetricZone">${sitemetricZoneOptions()}</select></div>
-   <div class="field" id="fuelNewAreaWrap" style="display:none"><label>${db.lang===\'es\'?\'Área 3A / 4A / 7A\':\'Area 3A / 4A / 7A\'}</label><select id="fuelNewArea">${areaOptions()}</select></div>
+   <div class="field" id="fuelNewAreaWrap" style="display:none"><label>${db.lang==='es'?'Área 3A / 4A / 7A':'Area 3A / 4A / 7A'}</label><select id="fuelNewArea">${areaOptions()}</select></div>
    <div class="field" id="fuelNewOfficeWrap" style="display:none"><label>${db.lang==='es'?'Empresa en Oficinas Mobil':'Company in Oficinas Mobil'}</label><select id="fuelNewOffice">${mobileOfficeOptions()}</select></div>
    <div class="field" id="fuelNewTentWrap" style="display:none"><label>${db.lang==='es'?'Tienda':'Tent'}</label><select id="fuelNewTent">${campaignTentOptions()}</select></div>
    <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
