@@ -247,14 +247,14 @@ body.tank-selected .photo-card img{background:#f7f8fa!important}
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="sheet-head"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
 
 <script>
-const KEY='ctc_native_hd_v24_visual_asset_selector';
+const KEY='ctc_native_hd_v25_campaign_tents';
 const seed={
  lang:null,type:'tower',activeTower:'A1',activeTank:'T1',
  towers:[
   {id:'A1',serial:'LT-458921',type:'Torre de luz',model:'Wacker Neuson LTV6',code:'TL-042',fuelCapacity:110,defCapacity:8,location:'Sitemetric',description:'Sector norte, junto al acceso principal del edificio módulo eléctrico.',status:'Operativa',hourMeter:1245,lastFuel:'2026-08-09T07:15',lastDef:'2026-08-09T07:18',fuelLevel:68,defLevel:4.4,priority:1,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
   {id:'A2',serial:'LT-458922',type:'Torre de luz',model:'Wacker Neuson LTV6',code:'TL-043',fuelCapacity:110,defCapacity:8,location:'Trailer City',description:'Pasillo central de Trailer City.',status:'Operativa',hourMeter:1180,lastFuel:null,lastDef:null,fuelLevel:60,defLevel:4.0,priority:2,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
   {id:'A3',serial:'LT-458923',type:'Torre de luz',model:'Allmand Maxi-Lite',code:'TL-044',fuelCapacity:100,defCapacity:8,location:'Medical Trailer',description:'Área exterior del Medical Trailer.',status:'Operativa',hourMeter:1095,lastFuel:null,lastDef:null,fuelLevel:52,defLevel:3.8,priority:3,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
-  {id:'A4',serial:'LT-458924',type:'Torre de luz',model:'Generac MLT6S',code:'TL-045',fuelCapacity:100,defCapacity:8,location:'Carpas Blancas',description:'Zona principal de Carpas Blancas.',status:'Operativa',hourMeter:1040,lastFuel:null,lastDef:null,fuelLevel:49,defLevel:3.5,priority:4,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
+  {id:'A4',serial:'LT-458924',type:'Torre de luz',model:'Generac MLT6S',code:'TL-045',fuelCapacity:100,defCapacity:8,location:'Tienda de campaña',description:'Zona principal de Tienda de campaña.',status:'Operativa',hourMeter:1040,lastFuel:null,lastDef:null,fuelLevel:49,defLevel:3.5,priority:4,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
   {id:'A5',serial:'LT-458925',type:'Torre de luz',model:'Allmand Night-Lite',code:'TL-046',fuelCapacity:100,defCapacity:8,location:'Orientación',description:'Área de Orientación.',status:'Operativa',hourMeter:985,lastFuel:null,lastDef:null,fuelLevel:58,defLevel:4.1,priority:5,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
   {id:'A6',serial:'LT-458926',type:'Torre de luz',model:'Wacker Neuson LTV6',code:'TL-047',fuelCapacity:110,defCapacity:8,location:'Oficinas Mobil',description:'Área de Oficinas Mobil.',status:'Operativa',hourMeter:940,lastFuel:null,lastDef:null,fuelLevel:63,defLevel:4.2,priority:6,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
   {id:'A7',serial:'LT-458927',type:'Torre de luz',model:'Generac MLT6S',code:'TL-048',fuelCapacity:100,defCapacity:8,location:'Chill Zone',description:'Zona lateral de Chill Zone.',status:'Operativa',hourMeter:900,lastFuel:null,lastDef:null,fuelLevel:54,defLevel:3.9,priority:7,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
@@ -266,7 +266,7 @@ const seed={
   {id:'T1',name:'Tanque 1',serial:'TK-001',capacity:552.4,current:460,location:'Sitemetric',description:'Tanque removible de 2.091 L para almacenamiento de diésel.',status:'Activo',removable:true,lastFill:'2026-08-09T06:00',hourMeter:0,lastMeterPhotoTime:null},
   {id:'T2',name:'Tanque 2',serial:'TK-002',capacity:552.4,current:420,location:'Trailer City',description:'Tanque removible de 2.091 L para abastecimiento del área.',status:'Activo',removable:true,lastFill:'2026-08-09T06:10',hourMeter:0,lastMeterPhotoTime:null},
   {id:'T3',name:'Tanque 3',serial:'TK-003',capacity:552.4,current:390,location:'Medical Trailer',description:'Tanque removible de 2.091 L del Medical Trailer.',status:'Activo',removable:true,lastFill:'2026-08-09T06:20',hourMeter:0,lastMeterPhotoTime:null},
-  {id:'T4',name:'Tanque 4',serial:'TK-004',capacity:552.4,current:370,location:'Carpas Blancas',description:'Tanque removible de 2.091 L en Carpas Blancas.',status:'Activo',removable:true,lastFill:'2026-08-09T06:30',hourMeter:0,lastMeterPhotoTime:null},
+  {id:'T4',name:'Tanque 4',serial:'TK-004',capacity:552.4,current:370,location:'Tienda de campaña',description:'Tanque removible de 2.091 L en Tienda de campaña.',status:'Activo',removable:true,lastFill:'2026-08-09T06:30',hourMeter:0,lastMeterPhotoTime:null},
   {id:'T5',name:'Tanque 5',serial:'TK-005',capacity:552.4,current:350,location:'Orientación',description:'Tanque removible de 2.091 L en Orientación.',status:'Activo',removable:true,lastFill:'2026-08-09T06:40',hourMeter:0,lastMeterPhotoTime:null},
   {id:'T6',name:'Tanque 6',serial:'TK-006',capacity:552.4,current:330,location:'Oficinas Mobil',description:'Tanque removible de 2.091 L para Oficinas Mobil.',status:'Activo',removable:true,lastFill:'2026-08-09T06:50',hourMeter:0,lastMeterPhotoTime:null},
   {id:'T7',name:'Tanque 7',serial:'TK-007',capacity:552.4,current:310,location:'Chill Zone',description:'Tanque removible de 2.091 L en Chill Zone.',status:'Activo',removable:true,lastFill:'2026-08-09T07:00',hourMeter:0,lastMeterPhotoTime:null},
@@ -283,23 +283,41 @@ db.lang=SAVED_LANG||DEVICE_LANG;
 ensureLocations();
 
 const SUPPLY_DAYS=[1,3,5]; // Monday, Wednesday, Friday
-const PRIORITY_LOCATIONS=['Sitemetric','Trailer City','Medical Trailer','Carpas Blancas','Orientación','Oficinas Mobil','Chill Zone'];
+const PRIORITY_LOCATIONS=['Sitemetric','Trailer City','Medical Trailer','Tienda de campaña','Orientación','Oficinas Mobil','Chill Zone'];
 
 const DEFAULT_LOCATIONS=[
  {id:'LOC-SITEMETRIC',name:'Sitemetric',priority:true,type:'site'},
  {id:'LOC-TRAILER',name:'Trailer City',priority:true,type:'site'},
  {id:'LOC-MEDICAL',name:'Medical Trailer',priority:true,type:'site'},
- {id:'LOC-CARPAS',name:'Carpas Blancas',priority:true,type:'site'},
+ {id:'LOC-TIENDAS',name:'Tienda de campaña',priority:true,type:'campaign_tents'},
  {id:'LOC-ORIENTACION',name:'Orientación',priority:true,type:'site'},
  {id:'LOC-MOBIL',name:'Oficinas Mobil',priority:true,type:'mobile_offices'},
  {id:'LOC-CHILL',name:'Chill Zone',priority:true,type:'site'}
 ];
+
+
+const DEFAULT_CAMPAIGN_TENTS=[
+ {id:'TENT-3A',name:'Tienda 3A'},
+ {id:'TENT-7A',name:'Tienda 7A'}
+];
+
+function campaignTentOptions(selected=''){
+ return `<option value="">${db.lang==='es'?'Seleccione tienda':'Select tent'}</option>`+
+   (db.campaignTents||[]).map(x=>`<option value="${x.name}" ${x.name===selected?'selected':''}>${x.name}</option>`).join('');
+}
+function locationIsCampaignTent(name){return name==='Tienda de campaña';}
+function composeLocationDisplay(base,office,tent){
+ if(locationIsMobil(base)&&office)return `Oficinas Mobil · ${office}`;
+ if(locationIsCampaignTent(base)&&tent)return `Tienda de campaña · ${tent}`;
+ return base;
+}
 
 function ensureLocations(){
  if(!Array.isArray(db.locations)||!db.locations.length){
    db.locations=DEFAULT_LOCATIONS.map(x=>({...x}));
  }
  if(!Array.isArray(db.mobileOffices)) db.mobileOffices=[];
+ if(!Array.isArray(db.campaignTents)||!db.campaignTents.length) db.campaignTents=DEFAULT_CAMPAIGN_TENTS.map(x=>({...x}));
  save();
 }
 function locationOptions(selectedName=''){
@@ -310,9 +328,7 @@ function mobileOfficeOptions(selected=''){
  return `<option value="">${db.lang==='es'?'Seleccione oficina':'Select office'}</option>${opts}`;
 }
 function locationIsMobil(name){return name==='Oficinas Mobil';}
-function composeLocationDisplay(base,office){
- return locationIsMobil(base)&&office ? `Oficinas Mobil · ${office}` : base;
-}
+
 function renderLocationSelect(selectId,selected='',officeId=null,selectedOffice=''){
  const el=document.getElementById(selectId); if(!el)return;
  el.innerHTML=locationOptions(selected);
@@ -332,6 +348,20 @@ function handleLocationChange(selectId,officeWrapId,officeSelectId){
  wrap.style.display=mobil?'flex':'none';
  if(mobil&&office)office.innerHTML=mobileOfficeOptions(office.value||'');
 }
+
+function updateLocationChildren(locationSelectId,officeWrapId,officeSelectId,tentWrapId,tentSelectId){
+ const loc=document.getElementById(locationSelectId);
+ if(!loc)return;
+ const officeWrap=document.getElementById(officeWrapId);
+ const office=document.getElementById(officeSelectId);
+ const tentWrap=document.getElementById(tentWrapId);
+ const tent=document.getElementById(tentSelectId);
+ if(officeWrap)officeWrap.style.display=locationIsMobil(loc.value)?'flex':'none';
+ if(office&&locationIsMobil(loc.value))office.innerHTML=mobileOfficeOptions(office.value||'');
+ if(tentWrap)tentWrap.style.display=locationIsCampaignTent(loc.value)?'flex':'none';
+ if(tent&&locationIsCampaignTent(loc.value))tent.innerHTML=campaignTentOptions(tent.value||'');
+}
+
 function openLocationManager(){
  openModal(db.lang==='es'?'Administrar ubicaciones':'Manage locations',`
    <div class="list">
@@ -545,7 +575,7 @@ function renderDemoList(){
    <div class="demo-item">
      <b>${x.serial}</b>
      <div>${db.type==='tower'?(x.model||''):(x.name||'')}</div>
-     <div class="sub">${x.referenceNumber?`${db.lang==='es'?'Ref.':'Ref.'} ${x.referenceNumber} · `:''}${x.color?`${x.color} · `:''}${composeLocationDisplay(x.location,x.mobileOffice||'')}<br>${x.description||''}</div>
+     <div class="sub">${x.referenceNumber?`${db.lang==='es'?'Ref.':'Ref.'} ${x.referenceNumber} · `:''}${x.color?`${x.color} · `:''}${composeLocationDisplay(x.location,x.mobileOffice||'',x.campaignTent||'')}<br>${x.description||''}</div>
      <div class="demo-actions">
        <button class="demo-select" onclick="selectDemoItem('${x.id}')">${db.lang==='es'?'Seleccionar':'Select'}</button>
        <button class="demo-edit" onclick="requestAdminPin(()=>editDemoItem('${x.id}'))">${db.lang==='es'?'Actualizar':'Update'}</button>
@@ -564,8 +594,9 @@ function editDemoItem(id){
   <div class="field"><label>${db.lang==='es'?'Color':'Color'}</label><input id="dColor" value="${x.color||''}"></div>
   ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Tipo de equipo':'Equipment type'}</label><select id="dEquipmentClass"><option value="light_tower" ${x.equipmentClass==='light_tower'?'selected':''}>${db.lang==='es'?'Torre de luz':'Light tower'}</option><option value="generator" ${x.equipmentClass==='generator'?'selected':''}>${db.lang==='es'?'Generador':'Generator'}</option></select></div>`:''}
   ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Modelo':'Model'}</label><input id="dModel" value="${x.model||''}"></div>`:''}
-  <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="dLoc" onchange="handleLocationChange('dLoc','dOfficeWrap','dOffice')">${locationOptions(x.location||'')}</select></div>
+  <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="dLoc" onchange="handleLocationChange('dLoc','dOfficeWrap','dOffice');updateLocationChildren('dLoc','dOfficeWrap','dOffice','dTentWrap','dTent')">${locationOptions(x.location||'')}</select></div>
   <div class="field" id="dOfficeWrap" style="display:${locationIsMobil(x.location)?'flex':'none'}"><label>${db.lang==='es'?'Oficina dentro de Oficinas Mobil':'Office inside Oficinas Mobil'}</label><select id="dOffice">${mobileOfficeOptions(x.mobileOffice||'')}</select></div>
+  <div class="field" id="dTentWrap" style="display:${locationIsCampaignTent(x.location)?'flex':'none'}"><label>${db.lang==='es'?'Tienda':'Tent'}</label><select id="dTent">${campaignTentOptions(x.campaignTent||'')}</select></div>
   <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
   <div class="field"><label>${db.lang==='es'?'Descripción':'Description'}</label><textarea id="dDesc">${x.description||''}</textarea></div>
   ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Capacidad combustible (gal)':'Fuel capacity (gal)'}</label><input id="dCap" type="number" value="${x.fuelCapacity||0}"></div>
@@ -583,7 +614,7 @@ function toggleEditBackup(){
 function saveDemoEdit(id){
  const x=(db.type==='tower'?db.towers:db.tanks).find(v=>v.id===id); if(!x)return;
  x.referenceNumber=dReference.value.trim();x.serial=dSerial.value.trim();x.color=dColor.value.trim();
- x.location=dLoc.value;x.mobileOffice=locationIsMobil(dLoc.value)?(dOffice.value||''):'';x.description=dDesc.value.trim();
+ x.location=dLoc.value;x.mobileOffice=locationIsMobil(dLoc.value)?(dOffice.value||''):'';x.campaignTent=locationIsCampaignTent(dLoc.value)?(dTent.value||''):'';x.description=dDesc.value.trim();
  if(db.type==='tower'){
  x.model=dModel.value.trim();x.fuelCapacity=Number(dCap.value)||0;
  x.equipmentClass=dEquipmentClass.value;
@@ -608,8 +639,9 @@ function openNewDemoItem(){
     <select id="nEquipmentClass"><option value="light_tower">${db.lang==='es'?'Torre de luz':'Light tower'}</option><option value="generator">${db.lang==='es'?'Generador':'Generator'}</option></select>
    </div>
    <div class="field"><label>${db.lang==='es'?'Modelo / Tipo':'Model / Type'}</label><input id="nModel"></div>
-   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="nLoc" onchange="handleLocationChange('nLoc','nOfficeWrap','nOffice')">${locationOptions()}</select></div>
+   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="nLoc" onchange="handleLocationChange('nLoc','nOfficeWrap','nOffice');updateLocationChildren('nLoc','nOfficeWrap','nOffice','nTentWrap','nTent')">${locationOptions()}</select></div>
    <div class="field" id="nOfficeWrap" style="display:none"><label>${db.lang==='es'?'Oficina dentro de Oficinas Mobil':'Office inside Oficinas Mobil'}</label><select id="nOffice">${mobileOfficeOptions()}</select></div>
+   <div class="field" id="nTentWrap" style="display:none"><label>${db.lang==='es'?'Tienda':'Tent'}</label><select id="nTent">${campaignTentOptions()}</select></div>
    <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
    <div class="field"><label>${db.lang==='es'?'Descripción de ubicación':'Location description'}</label><textarea id="nDesc"></textarea></div>
    <div class="field"><label>${db.lang==='es'?'Capacidad tanque principal (gal)':'Main tank capacity (gal)'}</label><input id="nMainCap" type="number" min="0" step=".1"></div>
@@ -624,8 +656,9 @@ function openNewDemoItem(){
    <div class="field"><label>${db.lang==='es'?'Número de referencia':'Reference number'}</label><input id="nReference"></div>
    <div class="field"><label>Serial</label><input id="nSerial"></div>
    <div class="field"><label>${db.lang==='es'?'Color':'Color'}</label><input id="nColor"></div>
-   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="nLoc" onchange="handleLocationChange('nLoc','nOfficeWrap','nOffice')">${locationOptions()}</select></div>
+   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="nLoc" onchange="handleLocationChange('nLoc','nOfficeWrap','nOffice');updateLocationChildren('nLoc','nOfficeWrap','nOffice','nTentWrap','nTent')">${locationOptions()}</select></div>
    <div class="field" id="nOfficeWrap" style="display:none"><label>${db.lang==='es'?'Oficina dentro de Oficinas Mobil':'Office inside Oficinas Mobil'}</label><select id="nOffice">${mobileOfficeOptions()}</select></div>
+   <div class="field" id="nTentWrap" style="display:none"><label>${db.lang==='es'?'Tienda':'Tent'}</label><select id="nTent">${campaignTentOptions()}</select></div>
    <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
    <div class="field"><label>${db.lang==='es'?'Descripción':'Description'}</label><textarea id="nDesc"></textarea></div>
    <div class="field"><label>${db.lang==='es'?'Capacidad (gal)':'Capacity (gal)'}</label><input id="nTankCap" type="number" min="0" step=".1"></div>
@@ -644,12 +677,12 @@ function saveNewDemoItem(){
   const backupCap=hasBackup?(Number(nBackupCap.value)||0):0;
   const backupLevel=hasBackup?Math.min(backupCap,Number(nBackupLevel.value)||0):0;
   const id='A'+Date.now();
-  db.towers.push({id,serial:nSerial.value.trim(),type:'Torre de luz',model:nModel.value.trim(),code:'',fuelCapacity:mainCap,defCapacity:8,location:nLoc.value,mobileOffice:locationIsMobil(nLoc.value)?(nOffice.value||''):'',description:nDesc.value.trim(),status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:mainCap,defLevel:0,priority:99,removable:true,consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,hasBackupTank:hasBackup,backupCapacity:backupCap,backupLevel,backupLastRefill:null,backupAvgGalPerDay:0,backupLastConsumed:0,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0});
+  db.towers.push({id,serial:nSerial.value.trim(),type:'Torre de luz',model:nModel.value.trim(),code:'',fuelCapacity:mainCap,defCapacity:8,location:nLoc.value,mobileOffice:locationIsMobil(nLoc.value)?(nOffice.value||''):'',campaignTent:locationIsCampaignTent(nLoc.value)?(nTent.value||''):'',description:nDesc.value.trim(),status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:mainCap,defLevel:0,priority:99,removable:true,consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,hasBackupTank:hasBackup,backupCapacity:backupCap,backupLevel,backupLastRefill:null,backupAvgGalPerDay:0,backupLastConsumed:0,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0});
   db.activeTower=id;
  }else{
   const cap=Number(nTankCap.value)||0,level=Math.min(cap,Number(nTankLevel.value)||0),id='T'+Date.now();
   db.tanks.push({id,name:'Tanque',serial:nSerial.value.trim(),referenceNumber:nReference.value.trim(),color:nColor.value.trim(),
-     equipmentClass:'reserve_tank',capacity:cap,current:level,location:nLoc.value,mobileOffice:locationIsMobil(nLoc.value)?(nOffice.value||''):'',description:nDesc.value.trim(),status:'Activo',removable:true,lastFill:null,hourMeter:0,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0});
+     equipmentClass:'reserve_tank',capacity:cap,current:level,location:nLoc.value,mobileOffice:locationIsMobil(nLoc.value)?(nOffice.value||''):'',campaignTent:locationIsCampaignTent(nLoc.value)?(nTent.value||''):'',description:nDesc.value.trim(),status:'Activo',removable:true,lastFill:null,hourMeter:0,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0});
   db.activeTank=id;
  }
  save();openDemoList(db.type);
@@ -891,8 +924,9 @@ function openFuel(){
     </select>
    </div>
    <div class="field"><label>${db.lang==='es'?'Capacidad de almacenamiento (gal)':'Storage capacity (gal)'}</label><input id="fuelNewCapacity" type="number" min="0" step=".1"></div>
-   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="fuelNewLocation" onchange="handleLocationChange('fuelNewLocation','fuelNewOfficeWrap','fuelNewOffice')">${locationOptions()}</select></div>
+   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="fuelNewLocation" onchange="handleLocationChange('fuelNewLocation','fuelNewOfficeWrap','fuelNewOffice');updateLocationChildren('fuelNewLocation','fuelNewOfficeWrap','fuelNewOffice','fuelNewTentWrap','fuelNewTent')">${locationOptions()}</select></div>
    <div class="field" id="fuelNewOfficeWrap" style="display:none"><label>${db.lang==='es'?'Oficina dentro de Oficinas Mobil':'Office inside Oficinas Mobil'}</label><select id="fuelNewOffice">${mobileOfficeOptions()}</select></div>
+   <div class="field" id="fuelNewTentWrap" style="display:none"><label>${db.lang==='es'?'Tienda':'Tent'}</label><select id="fuelNewTent">${campaignTentOptions()}</select></div>
    <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
    <div class="field"><label>${db.lang==='es'?'Descripción de ubicación':'Location description'}</label><textarea id="fuelNewDescription"></textarea></div>
    <div id="fuelNewBackupOption">
@@ -928,7 +962,7 @@ function refreshExistingFuelInfo(){
  const id=document.getElementById('fuelExistingAsset').value;
  const x=db.towers.find(a=>a.id===id); if(!x)return;
  const box=document.getElementById('existingFuelInfo');
- box.innerHTML=`<div class="calc-note"><b>${db.lang==='es'?'Referencia':'Reference'}:</b> ${x.referenceNumber||x.code||'—'}<br><b>${db.lang==='es'?'Color':'Color'}:</b> ${x.color||'—'}<br><b>${db.lang==='es'?'Tipo':'Type'}:</b> ${x.equipmentClass==='generator'?(db.lang==='es'?'Generador':'Generator'):(db.lang==='es'?'Torre de luz':'Light tower')}<br><b>${db.lang==='es'?'Capacidad':'Capacity'}:</b> ${fmt(x.fuelCapacity||0)} gal<br><b>${db.lang==='es'?'Ubicación':'Location'}:</b> ${composeLocationDisplay(x.location||'—',x.mobileOffice||'')}</div>`;
+ box.innerHTML=`<div class="calc-note"><b>${db.lang==='es'?'Referencia':'Reference'}:</b> ${x.referenceNumber||x.code||'—'}<br><b>${db.lang==='es'?'Color':'Color'}:</b> ${x.color||'—'}<br><b>${db.lang==='es'?'Tipo':'Type'}:</b> ${x.equipmentClass==='generator'?(db.lang==='es'?'Generador':'Generator'):(db.lang==='es'?'Torre de luz':'Light tower')}<br><b>${db.lang==='es'?'Capacidad':'Capacity'}:</b> ${fmt(x.fuelCapacity||0)} gal<br><b>${db.lang==='es'?'Ubicación':'Location'}:</b> ${composeLocationDisplay(x.location||'—',x.mobileOffice||'',x.campaignTent||'')}</div>`;
  document.getElementById('missingMain').value=Math.max(0,(x.fuelCapacity||0)-(x.fuelLevel||0));
  const b=document.getElementById('existingBackupFuelFields');
  b.innerHTML=x.hasBackupTank?`<div class="field"><label>${db.lang==='es'?'Galones que faltaban al tanque de respaldo':'Gallons missing from backup tank'}</label><input id="missingBackup" type="number" min="0" step=".1" value="${Math.max(0,(x.backupCapacity||0)-(x.backupLevel||0))}"></div>`:'';
@@ -949,7 +983,7 @@ function recordFuel(){
 
  if(mode==='new'){
    const ref=fuelNewReference.value.trim(),serial=fuelNewSerial.value.trim(),color=fuelNewColor.value.trim();
-   const cls=fuelNewClass.value,cap=Number(fuelNewCapacity.value)||0,loc=fuelNewLocation.value,office=locationIsMobil(loc)?(fuelNewOffice.value||''):'',desc=fuelNewDescription.value.trim();
+   const cls=fuelNewClass.value,cap=Number(fuelNewCapacity.value)||0,loc=fuelNewLocation.value,office=locationIsMobil(loc)?(fuelNewOffice.value||''):'',tent=locationIsCampaignTent(loc)?(fuelNewTent.value||''):'',desc=fuelNewDescription.value.trim();
    if(!serial||!cap||!loc)return alert(db.lang==='es'?'Completa serial, capacidad y ubicación.':'Complete serial, capacity, and location.');
    if(mainMissing>cap)return alert(db.lang==='es'?'El faltante no puede superar la capacidad.':'Missing amount cannot exceed capacity.');
 
@@ -958,7 +992,7 @@ function recordFuel(){
      const current=Math.max(0,cap-mainMissing);
      db.tanks.push({
        id,name:'Tanque de respaldo',serial,referenceNumber:ref,color,equipmentClass:'reserve_tank',
-       capacity:cap,current:cap,location:loc,mobileOffice:office,description:desc,status:'Activo',removable:true,
+       capacity:cap,current:cap,location:loc,mobileOffice:office,campaignTent:tent,description:desc,status:'Activo',removable:true,
        lastFill:dateValue,hourMeter:0,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:mainMissing,lastConsumptionDays:0
      });
      db.activeTank=id;
@@ -976,7 +1010,7 @@ function recordFuel(){
    const typeName=cls==='generator'?'Generador':'Torre de luz';
    const x={
      id,serial,referenceNumber:ref,color,equipmentClass:cls,type:typeName,model:'',code:ref,
-     fuelCapacity:cap,defCapacity:8,location:loc,mobileOffice:office,description:desc,status:'Operativa',hourMeter:null,
+     fuelCapacity:cap,defCapacity:8,location:loc,mobileOffice:office,campaignTent:tent,description:desc,status:'Operativa',hourMeter:null,
      lastFuel:dateValue,lastDef:null,fuelLevel:cap,defLevel:0,priority:99,removable:true,
      consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,
      hasBackupTank:hasBackup,backupCapacity:backupCap,backupLevel:backupCap,backupLastRefill:hasBackup?dateValue:null,
@@ -1319,6 +1353,7 @@ function normalizeFuelData(){
    if(typeof x.color==='undefined')x.color='';
    if(typeof x.equipmentClass==='undefined')x.equipmentClass=(x.type||'').toLowerCase().includes('generador')?'generator':'light_tower';
    if(typeof x.mobileOffice==='undefined')x.mobileOffice='';
+   if(typeof x.campaignTent==='undefined')x.campaignTent='';
   if(typeof x.hasBackupTank==='undefined')x.hasBackupTank=false;
   if(typeof x.backupCapacity==='undefined')x.backupCapacity=0;
   if(typeof x.backupLevel==='undefined')x.backupLevel=0;
@@ -1334,6 +1369,7 @@ function normalizeFuelData(){
    if(typeof x.color==='undefined')x.color='';
    if(typeof x.equipmentClass==='undefined')x.equipmentClass='reserve_tank';
    if(typeof x.mobileOffice==='undefined')x.mobileOffice='';
+   if(typeof x.campaignTent==='undefined')x.campaignTent='';
   if(typeof x.lastConsumed==='undefined')x.lastConsumed=0;
   if(typeof x.avgGalPerDay==='undefined')x.avgGalPerDay=0;
  });
