@@ -247,7 +247,7 @@ body.tank-selected .photo-card img{background:#f7f8fa!important}
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="sheet-head"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
 
 <script>
-const KEY='ctc_native_hd_v13_GLOBAL_FIXED';
+const KEY='ctc_native_hd_v23_locations_hierarchy';
 const seed={
  lang:null,type:'tower',activeTower:'A1',activeTank:'T1',
  towers:[
@@ -280,9 +280,89 @@ let db;try{db=JSON.parse(localStorage.getItem(KEY))||structuredClone(seed)}catch
 const DEVICE_LANG=((navigator.languages&&navigator.languages[0])||navigator.language||'en').toLowerCase().startsWith('es')?'es':'en';
 const SAVED_LANG=localStorage.getItem(KEY+'_manual_lang');
 db.lang=SAVED_LANG||DEVICE_LANG;
+ensureLocations();
 
 const SUPPLY_DAYS=[1,3,5]; // Monday, Wednesday, Friday
 const PRIORITY_LOCATIONS=['Sitemetric','Trailer City','Medical Trailer','Carpas Blancas','Orientación','Oficinas Mobil','Chill Zone'];
+
+const DEFAULT_LOCATIONS=[
+ {id:'LOC-SITEMETRIC',name:'Sitemetric',priority:true,type:'site'},
+ {id:'LOC-TRAILER',name:'Trailer City',priority:true,type:'site'},
+ {id:'LOC-MEDICAL',name:'Medical Trailer',priority:true,type:'site'},
+ {id:'LOC-CARPAS',name:'Carpas Blancas',priority:true,type:'site'},
+ {id:'LOC-ORIENTACION',name:'Orientación',priority:true,type:'site'},
+ {id:'LOC-MOBIL',name:'Oficinas Mobil',priority:true,type:'mobile_offices'},
+ {id:'LOC-CHILL',name:'Chill Zone',priority:true,type:'site'}
+];
+
+function ensureLocations(){
+ if(!Array.isArray(db.locations)||!db.locations.length){
+   db.locations=DEFAULT_LOCATIONS.map(x=>({...x}));
+ }
+ if(!Array.isArray(db.mobileOffices)) db.mobileOffices=[];
+ save();
+}
+function locationOptions(selectedName=''){
+ return (db.locations||[]).map(l=>`<option value="${l.name}" ${l.name===selectedName?'selected':''}>${l.name}${l.priority?' ★':''}</option>`).join('');
+}
+function mobileOfficeOptions(selected=''){
+ const opts=(db.mobileOffices||[]).map(o=>`<option value="${o.name}" ${o.name===selected?'selected':''}>${o.name}</option>`).join('');
+ return `<option value="">${db.lang==='es'?'Seleccione oficina':'Select office'}</option>${opts}`;
+}
+function locationIsMobil(name){return name==='Oficinas Mobil';}
+function composeLocationDisplay(base,office){
+ return locationIsMobil(base)&&office ? `Oficinas Mobil · ${office}` : base;
+}
+function renderLocationSelect(selectId,selected='',officeId=null,selectedOffice=''){
+ const el=document.getElementById(selectId); if(!el)return;
+ el.innerHTML=locationOptions(selected);
+ if(selected)el.value=selected;
+ if(officeId){
+   const office=document.getElementById(officeId);
+   if(office){
+     office.innerHTML=mobileOfficeOptions(selectedOffice);
+     office.parentElement.style.display=locationIsMobil(el.value)?'flex':'none';
+   }
+ }
+}
+function handleLocationChange(selectId,officeWrapId,officeSelectId){
+ const el=document.getElementById(selectId),wrap=document.getElementById(officeWrapId),office=document.getElementById(officeSelectId);
+ if(!el||!wrap)return;
+ const mobil=locationIsMobil(el.value);
+ wrap.style.display=mobil?'flex':'none';
+ if(mobil&&office)office.innerHTML=mobileOfficeOptions(office.value||'');
+}
+function openLocationManager(){
+ openModal(db.lang==='es'?'Administrar ubicaciones':'Manage locations',`
+   <div class="list">
+    ${(db.locations||[]).map(l=>`<div class="list-item"><b>${l.name}</b><br><span>${l.priority?(db.lang==='es'?'Prioridad L/M/V':'Mon/Wed/Fri priority'):(db.lang==='es'?'Ubicación adicional':'Additional location')}</span></div>`).join('')}
+   </div>
+   <div style="font-weight:900;margin:14px 0 7px">${db.lang==='es'?'AGREGAR NUEVO LUGAR':'ADD NEW LOCATION'}</div>
+   <div class="field"><label>${db.lang==='es'?'Nombre del lugar':'Location name'}</label><input id="newLocationName"></div>
+   <div class="field"><label>${db.lang==='es'?'Tipo':'Type'}</label><select id="newLocationType"><option value="site">${db.lang==='es'?'Lugar general':'General site'}</option><option value="mobile_offices">${db.lang==='es'?'Grupo de oficinas móviles':'Mobile offices group'}</option></select></div>
+   <div class="btns"><button class="btn primary" onclick="saveNewLocation()">${db.lang==='es'?'Agregar lugar':'Add location'}</button></div>
+   <div style="font-weight:900;margin:16px 0 7px">${db.lang==='es'?'OFICINAS DENTRO DE OFICINAS MOBIL':'OFFICES INSIDE OFICINAS MOBIL'}</div>
+   <div class="list">${(db.mobileOffices||[]).map(o=>`<div class="list-item"><b>${o.name}</b><br><span>${o.description||''}</span></div>`).join('')||`<div class="list-item">${db.lang==='es'?'Aún no hay oficinas creadas.':'No offices created yet.'}</div>`}</div>
+   <div class="field"><label>${db.lang==='es'?'Nombre de la nueva oficina':'New office name'}</label><input id="newOfficeName"></div>
+   <div class="field"><label>${db.lang==='es'?'Descripción / referencia':'Description / reference'}</label><textarea id="newOfficeDesc"></textarea></div>
+   <div class="btns"><button class="btn primary" onclick="saveNewMobileOffice()">${db.lang==='es'?'Agregar oficina':'Add office'}</button></div>
+ `);
+}
+function saveNewLocation(){
+ const name=(document.getElementById('newLocationName')?.value||'').trim();
+ if(!name)return alert(db.lang==='es'?'Escribe el nombre del lugar.':'Enter the location name.');
+ if((db.locations||[]).some(l=>l.name.toLowerCase()===name.toLowerCase()))return alert(db.lang==='es'?'Ese lugar ya existe.':'That location already exists.');
+ db.locations.push({id:'LOC-'+Date.now(),name,priority:false,type:document.getElementById('newLocationType').value});
+ save();openLocationManager();
+}
+function saveNewMobileOffice(){
+ const name=(document.getElementById('newOfficeName')?.value||'').trim();
+ if(!name)return alert(db.lang==='es'?'Escribe el nombre de la oficina.':'Enter the office name.');
+ if((db.mobileOffices||[]).some(o=>o.name.toLowerCase()===name.toLowerCase()))return alert(db.lang==='es'?'Esa oficina ya existe.':'That office already exists.');
+ db.mobileOffices.push({id:'OFF-'+Date.now(),name,description:(document.getElementById('newOfficeDesc')?.value||'').trim()});
+ save();openLocationManager();
+}
+
 
 function isSupplyDay(dateObj=new Date()){
   return SUPPLY_DAYS.includes(dateObj.getDay());
@@ -372,7 +452,15 @@ function renderDynamicSummary(x){
      <div class="dynamic-box"><div class="k">${t('estimatedMissing')}</div><div class="v">${fmt(e.missing)} gal</div></div>
      <div class="dynamic-box"><div class="k">${t('lastMeterPhoto')}</div><div class="v" style="font-size:11px">${x.lastMeterPhotoTime?date(x.lastMeterPhotoTime):'—'}</div></div>
    </div>
-   <button class="camera-btn" onclick="meterCamera.click()">📷 ${t('meterPhoto')}</button>
+   
+   <div class="dynamic-grid" style="margin-top:8px">
+    <div class="dynamic-box"><div class="k">${db.lang==='es'?'Último consumo':'Last consumption'}</div><div class="v">${fmt(x.lastConsumed||0)} gal</div></div>
+    <div class="dynamic-box"><div class="k">${db.lang==='es'?'Promedio diario':'Daily average'}</div><div class="v">${fmt(x.avgGalPerDay||0)} gal/día</div></div>
+    <div class="dynamic-box"><div class="k">${db.lang==='es'?'Días estimados con combustible actual':'Estimated days with current fuel'}</div><div class="v">${fmtDays((x.avgGalPerDay||0)>0?(x.fuelLevel||0)/x.avgGalPerDay:null)}</div></div>
+    <div class="dynamic-box"><div class="k">${db.lang==='es'?'Último surtido':'Last refuel'}</div><div class="v" style="font-size:11px">${x.lastFuel?date(x.lastFuel):'—'}</div></div>
+   </div>
+   ${x.hasBackupTank?`<div class="calc-note" style="margin-top:10px"><b>${db.lang==='es'?'Tanque de respaldo':'Backup tank'}:</b> ${fmt(x.backupLevel||0)} / ${fmt(x.backupCapacity||0)} gal<br><b>${db.lang==='es'?'Promedio de consumo respaldo':'Backup daily consumption'}:</b> ${fmt(x.backupAvgGalPerDay||0)} gal/día<br><b>${db.lang==='es'?'Duración estimada respaldo':'Estimated backup duration'}:</b> ${fmtDays((x.backupAvgGalPerDay||0)>0?(x.backupLevel||0)/x.backupAvgGalPerDay:null)} ${db.lang==='es'?'días':'days'}<br><b>${db.lang==='es'?'Último surtido respaldo':'Last backup refuel'}:</b> ${x.backupLastRefill?date(x.backupLastRefill):'—'}</div>`:''}
+<button class="camera-btn" onclick="meterCamera.click()">📷 ${t('meterPhoto')}</button>
    <div class="calc-note">${db.lang==='es'?'La foto no se almacena. Se registra fecha/hora y luego confirmas manualmente la lectura del horómetro para calcular el faltante.':'The photo is not stored. Date/time is recorded and you manually confirm the hour-meter reading to calculate fuel needed.'}</div>`;
  }else{
    const moves=tankMovementDates(x.id);
@@ -457,7 +545,7 @@ function renderDemoList(){
    <div class="demo-item">
      <b>${x.serial}</b>
      <div>${db.type==='tower'?(x.model||''):(x.name||'')}</div>
-     <div class="sub">${x.location}<br>${x.description||''}</div>
+     <div class="sub">${x.referenceNumber?`${db.lang==='es'?'Ref.':'Ref.'} ${x.referenceNumber} · `:''}${x.color?`${x.color} · `:''}${composeLocationDisplay(x.location,x.mobileOffice||'')}<br>${x.description||''}</div>
      <div class="demo-actions">
        <button class="demo-select" onclick="selectDemoItem('${x.id}')">${db.lang==='es'?'Seleccionar':'Select'}</button>
        <button class="demo-edit" onclick="requestAdminPin(()=>editDemoItem('${x.id}'))">${db.lang==='es'?'Actualizar':'Update'}</button>
@@ -471,34 +559,98 @@ function selectDemoItem(id){
 function editDemoItem(id){
  const x=(db.type==='tower'?db.towers:db.tanks).find(v=>v.id===id); if(!x)return;
  openModal(db.lang==='es'?'Actualizar registro':'Update record',`
+  <div class="field"><label>${db.lang==='es'?'Número de referencia':'Reference number'}</label><input id="dReference" value="${x.referenceNumber||x.code||''}"></div>
   <div class="field"><label>Serial</label><input id="dSerial" value="${x.serial||''}"></div>
+  <div class="field"><label>${db.lang==='es'?'Color':'Color'}</label><input id="dColor" value="${x.color||''}"></div>
+  ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Tipo de equipo':'Equipment type'}</label><select id="dEquipmentClass"><option value="light_tower" ${x.equipmentClass==='light_tower'?'selected':''}>${db.lang==='es'?'Torre de luz':'Light tower'}</option><option value="generator" ${x.equipmentClass==='generator'?'selected':''}>${db.lang==='es'?'Generador':'Generator'}</option></select></div>`:''}
   ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Modelo':'Model'}</label><input id="dModel" value="${x.model||''}"></div>`:''}
-  <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><input id="dLoc" value="${x.location||''}"></div>
+  <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="dLoc" onchange="handleLocationChange('dLoc','dOfficeWrap','dOffice')">${locationOptions(x.location||'')}</select></div>
+  <div class="field" id="dOfficeWrap" style="display:${locationIsMobil(x.location)?'flex':'none'}"><label>${db.lang==='es'?'Oficina dentro de Oficinas Mobil':'Office inside Oficinas Mobil'}</label><select id="dOffice">${mobileOfficeOptions(x.mobileOffice||'')}</select></div>
+  <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
   <div class="field"><label>${db.lang==='es'?'Descripción':'Description'}</label><textarea id="dDesc">${x.description||''}</textarea></div>
-  ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Capacidad combustible (gal)':'Fuel capacity (gal)'}</label><input id="dCap" type="number" value="${x.fuelCapacity||0}"></div>`:`<div class="field"><label>${db.lang==='es'?'Capacidad (gal)':'Capacity (gal)'}</label><input id="dCap" type="number" value="${x.capacity||0}"></div><div class="field"><label>${db.lang==='es'?'Nivel actual (gal)':'Current level (gal)'}</label><input id="dCur" type="number" value="${x.current||0}"></div><div class="field"><label>${db.lang==='es'?'Horómetro actual':'Current hour meter'}</label><input id="dHour" type="number" step="0.1" value="${x.hourMeter||0}"></div>`}
+  ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Capacidad combustible (gal)':'Fuel capacity (gal)'}</label><input id="dCap" type="number" value="${x.fuelCapacity||0}"></div>
+  <div class="field"><label>${db.lang==='es'?'¿Tiene tanque de respaldo?':'Has backup tank?'}</label><select id="dHasBackup" onchange="toggleEditBackup()"><option value="no" ${x.hasBackupTank?'':'selected'}>No</option><option value="yes" ${x.hasBackupTank?'selected':''}>${db.lang==='es'?'Sí':'Yes'}</option></select></div>
+  <div id="dBackupFields" style="display:${x.hasBackupTank?'block':'none'}">
+   <div class="field"><label>${db.lang==='es'?'Capacidad respaldo (gal)':'Backup capacity (gal)'}</label><input id="dBackupCap" type="number" step=".1" value="${x.backupCapacity||0}"></div>
+   <div class="field"><label>${db.lang==='es'?'Nivel respaldo actual (gal)':'Current backup level (gal)'}</label><input id="dBackupLevel" type="number" step=".1" value="${x.backupLevel||0}"></div>
+  </div>`:`<div class="field"><label>${db.lang==='es'?'Capacidad (gal)':'Capacity (gal)'}</label><input id="dCap" type="number" value="${x.capacity||0}"></div><div class="field"><label>${db.lang==='es'?'Nivel actual (gal)':'Current level (gal)'}</label><input id="dCur" type="number" value="${x.current||0}"></div><div class="field"><label>${db.lang==='es'?'Horómetro actual':'Current hour meter'}</label><input id="dHour" type="number" step="0.1" value="${x.hourMeter||0}"></div>`}
   <div class="btns"><button class="btn secondary" onclick="openDemoList('${db.type}')">${db.lang==='es'?'Cancelar':'Cancel'}</button><button class="btn primary" onclick="saveDemoEdit('${id}')">${db.lang==='es'?'Guardar':'Save'}</button></div>`);
+}
+function toggleEditBackup(){
+ const el=document.getElementById('dBackupFields');
+ if(el)el.style.display=(document.getElementById('dHasBackup').value==='yes')?'block':'none';
 }
 function saveDemoEdit(id){
  const x=(db.type==='tower'?db.towers:db.tanks).find(v=>v.id===id); if(!x)return;
- x.serial=dSerial.value.trim();x.location=dLoc.value.trim();x.description=dDesc.value.trim();
- if(db.type==='tower'){x.model=dModel.value.trim();x.fuelCapacity=Number(dCap.value)||0;}
+ x.referenceNumber=dReference.value.trim();x.serial=dSerial.value.trim();x.color=dColor.value.trim();
+ x.location=dLoc.value;x.mobileOffice=locationIsMobil(dLoc.value)?(dOffice.value||''):'';x.description=dDesc.value.trim();
+ if(db.type==='tower'){
+ x.model=dModel.value.trim();x.fuelCapacity=Number(dCap.value)||0;
+ x.equipmentClass=dEquipmentClass.value;
+ x.type=x.equipmentClass==='generator'?'Generador':'Torre de luz';
+ x.code=x.referenceNumber;
+ if(document.getElementById('dHasBackup')){
+  x.hasBackupTank=dHasBackup.value==='yes';
+  x.backupCapacity=x.hasBackupTank?(Number(dBackupCap.value)||0):0;
+  x.backupLevel=x.hasBackupTank?Math.min(x.backupCapacity,Number(dBackupLevel.value)||0):0;
+ }
+}
  else{x.capacity=Number(dCap.value)||0;x.current=Number(dCur.value)||0;x.hourMeter=Number(dHour.value)||0;}
  save();openDemoList(db.type);
 }
 function openNewDemoItem(){
- openModal(db.lang==='es'?'Agregar equipo':'Add equipment',`
-  <div class="field"><label>Serial</label><input id="nSerial"></div>
-  ${db.type==='tower'?`<div class="field"><label>${db.lang==='es'?'Modelo':'Model'}</label><input id="nModel"></div>`:''}
-  <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><input id="nLoc"></div>
-  <div class="field"><label>${db.lang==='es'?'Descripción':'Description'}</label><textarea id="nDesc"></textarea></div>
-  <div class="btns"><button class="btn secondary" onclick="openDemoList('${db.type}')">${db.lang==='es'?'Cancelar':'Cancel'}</button><button class="btn primary" onclick="saveNewDemoItem()">${db.lang==='es'?'Agregar':'Add'}</button></div>`);
+ if(db.type==='tower'){
+  openModal(db.lang==='es'?'Agregar torre / generador':'Add tower / generator',`
+   <div class="field"><label>${db.lang==='es'?'Número de referencia':'Reference number'}</label><input id="nReference"></div>
+   <div class="field"><label>Serial</label><input id="nSerial"></div>
+   <div class="field"><label>${db.lang==='es'?'Color':'Color'}</label><input id="nColor"></div>
+   <div class="field"><label>${db.lang==='es'?'Tipo de equipo':'Equipment type'}</label>
+    <select id="nEquipmentClass"><option value="light_tower">${db.lang==='es'?'Torre de luz':'Light tower'}</option><option value="generator">${db.lang==='es'?'Generador':'Generator'}</option></select>
+   </div>
+   <div class="field"><label>${db.lang==='es'?'Modelo / Tipo':'Model / Type'}</label><input id="nModel"></div>
+   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="nLoc" onchange="handleLocationChange('nLoc','nOfficeWrap','nOffice')">${locationOptions()}</select></div>
+   <div class="field" id="nOfficeWrap" style="display:none"><label>${db.lang==='es'?'Oficina dentro de Oficinas Mobil':'Office inside Oficinas Mobil'}</label><select id="nOffice">${mobileOfficeOptions()}</select></div>
+   <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
+   <div class="field"><label>${db.lang==='es'?'Descripción de ubicación':'Location description'}</label><textarea id="nDesc"></textarea></div>
+   <div class="field"><label>${db.lang==='es'?'Capacidad tanque principal (gal)':'Main tank capacity (gal)'}</label><input id="nMainCap" type="number" min="0" step=".1"></div>
+   <div class="field"><label>${db.lang==='es'?'¿Tiene tanque de respaldo?':'Has backup tank?'}</label><select id="nHasBackup" onchange="toggleNewBackup()"><option value="no">No</option><option value="yes">${db.lang==='es'?'Sí':'Yes'}</option></select></div>
+   <div id="nBackupFields" style="display:none">
+    <div class="field"><label>${db.lang==='es'?'Capacidad tanque de respaldo (gal)':'Backup tank capacity (gal)'}</label><input id="nBackupCap" type="number" min="0" step=".1"></div>
+    <div class="field"><label>${db.lang==='es'?'Nivel inicial tanque de respaldo (gal)':'Initial backup tank level (gal)'}</label><input id="nBackupLevel" type="number" min="0" step=".1"></div>
+   </div>
+   <div class="btns"><button class="btn secondary" onclick="openDemoList('tower')">${db.lang==='es'?'Cancelar':'Cancel'}</button><button class="btn primary" onclick="saveNewDemoItem()">${db.lang==='es'?'Agregar':'Add'}</button></div>`);
+ }else{
+  openModal(db.lang==='es'?'Agregar tanque':'Add tank',`
+   <div class="field"><label>${db.lang==='es'?'Número de referencia':'Reference number'}</label><input id="nReference"></div>
+   <div class="field"><label>Serial</label><input id="nSerial"></div>
+   <div class="field"><label>${db.lang==='es'?'Color':'Color'}</label><input id="nColor"></div>
+   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="nLoc" onchange="handleLocationChange('nLoc','nOfficeWrap','nOffice')">${locationOptions()}</select></div>
+   <div class="field" id="nOfficeWrap" style="display:none"><label>${db.lang==='es'?'Oficina dentro de Oficinas Mobil':'Office inside Oficinas Mobil'}</label><select id="nOffice">${mobileOfficeOptions()}</select></div>
+   <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
+   <div class="field"><label>${db.lang==='es'?'Descripción':'Description'}</label><textarea id="nDesc"></textarea></div>
+   <div class="field"><label>${db.lang==='es'?'Capacidad (gal)':'Capacity (gal)'}</label><input id="nTankCap" type="number" min="0" step=".1"></div>
+   <div class="field"><label>${db.lang==='es'?'Nivel inicial (gal)':'Initial level (gal)'}</label><input id="nTankLevel" type="number" min="0" step=".1"></div>
+   <div class="btns"><button class="btn secondary" onclick="openDemoList('tank')">${db.lang==='es'?'Cancelar':'Cancel'}</button><button class="btn primary" onclick="saveNewDemoItem()">${db.lang==='es'?'Agregar':'Add'}</button></div>`);
+ }
+}
+function toggleNewBackup(){
+ const el=document.getElementById('nBackupFields');
+ if(el)el.style.display=(document.getElementById('nHasBackup').value==='yes')?'block':'none';
 }
 function saveNewDemoItem(){
- if(!nSerial.value.trim())return;
+ if(!nSerial.value.trim())return alert(db.lang==='es'?'El serial es obligatorio.':'Serial is required.');
  if(db.type==='tower'){
-   const id='A'+Date.now();db.towers.push({id,serial:nSerial.value.trim(),type:'Torre de luz',model:nModel.value.trim(),code:'',fuelCapacity:110,defCapacity:8,location:nLoc.value.trim(),description:nDesc.value.trim(),status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:0,defLevel:0,priority:99,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null});db.activeTower=id;
+  const mainCap=Number(nMainCap.value)||0,hasBackup=nHasBackup.value==='yes';
+  const backupCap=hasBackup?(Number(nBackupCap.value)||0):0;
+  const backupLevel=hasBackup?Math.min(backupCap,Number(nBackupLevel.value)||0):0;
+  const id='A'+Date.now();
+  db.towers.push({id,serial:nSerial.value.trim(),type:'Torre de luz',model:nModel.value.trim(),code:'',fuelCapacity:mainCap,defCapacity:8,location:nLoc.value,mobileOffice:locationIsMobil(nLoc.value)?(nOffice.value||''):'',description:nDesc.value.trim(),status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:mainCap,defLevel:0,priority:99,removable:true,consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,hasBackupTank:hasBackup,backupCapacity:backupCap,backupLevel,backupLastRefill:null,backupAvgGalPerDay:0,backupLastConsumed:0,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0});
+  db.activeTower=id;
  }else{
-   const id='T'+Date.now();db.tanks.push({id,name:'Tanque',serial:nSerial.value.trim(),capacity:552.4,current:0,location:nLoc.value.trim(),description:nDesc.value.trim(),status:'Activo',removable:true,lastFill:null,hourMeter:0,lastMeterPhotoTime:null});db.activeTank=id;
+  const cap=Number(nTankCap.value)||0,level=Math.min(cap,Number(nTankLevel.value)||0),id='T'+Date.now();
+  db.tanks.push({id,name:'Tanque',serial:nSerial.value.trim(),referenceNumber:nReference.value.trim(),color:nColor.value.trim(),
+     equipmentClass:'reserve_tank',capacity:cap,current:level,location:nLoc.value,mobileOffice:locationIsMobil(nLoc.value)?(nOffice.value||''):'',description:nDesc.value.trim(),status:'Activo',removable:true,lastFill:null,hourMeter:0,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0});
+  db.activeTank=id;
  }
  save();openDemoList(db.type);
 }
@@ -688,28 +840,188 @@ function openEdit(){
 function saveEdit(){
  const x=active();x.serial=eSerial.value.trim();x.location=eLoc.value.trim();x.description=eDesc.value.trim();x.removable=eRem.value==='1';if(db.type==='tower')x.fuelCapacity=+eCap.value||0;else{x.capacity=+eCap.value||0;x.current=+eCur.value||0};save();closeModal();render()
 }
+
+function hoursBetween(a,b){
+  if(!a||!b)return 0;
+  const ms=new Date(b)-new Date(a);
+  return ms>0?ms/3600000:0;
+}
+function daysBetween(a,b){return hoursBetween(a,b)/24;}
+function calcConsumptionStats(capacity,currentBeforeFill,lastRefillDate,nowDate){
+  capacity=Number(capacity||0); currentBeforeFill=Math.max(0,Number(currentBeforeFill||0));
+  const consumed=Math.max(0,capacity-currentBeforeFill);
+  const days=daysBetween(lastRefillDate,nowDate);
+  const perDay=days>0?consumed/days:0;
+  const daysRemaining=perDay>0?currentBeforeFill/perDay:null;
+  return {consumed,days,perDay,daysRemaining};
+}
+function fmtDays(v){
+  if(v===null||!isFinite(v))return '—';
+  return Number(v).toLocaleString(undefined,{maximumFractionDigits:1});
+}
 function openFuel(){
- const x=active();
  const allowed=isSupplyDay(new Date());
  openModal(t('fuelRefill'),`
-   ${allowed?'':`<div style="background:#fff3cd;border:1px solid #f0d98a;border-radius:10px;padding:10px;margin-bottom:10px;font-size:11px"><b>${db.lang==='es'?'Aviso':'Notice'}:</b> ${db.lang==='es'?'El surtido programado es lunes, miércoles y viernes. Este registro se guardará como SURTIDO EXTRAORDINARIO y aparecerá en el reporte semanal.':'Scheduled refueling is Monday, Wednesday, and Friday. This entry will be saved as an UNSCHEDULED REFUEL and included in the weekly report.'}</div>`}
-   <div class="field"><label>${t('fuelRefill')} (gal)</label><input id="amt" type="number" step=".1"></div>
-   <div class="field"><label>${t('lastRefill')}</label><input id="when" type="datetime-local"></div>
-   <div class="field"><label>${db.lang==='es'?'Tanque de origen':'Source tank'}</label><select id="sourceTank">${db.tanks.map(k=>`<option value="${k.id}">${k.name||k.serial} — ${k.location}</option>`).join('')}</select></div>
-   <div class="btns"><button class="btn secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn primary" onclick="recordFuel()">${t('save')}</button></div>
+  ${allowed?'':`<div style="background:#fff3cd;border:1px solid #f0d98a;border-radius:10px;padding:10px;margin-bottom:10px;font-size:11px"><b>${db.lang==='es'?'Surtido extraordinario':'Unscheduled refuel'}:</b> ${db.lang==='es'?'Este suministro quedará registrado fuera del calendario L/M/V.':'This refuel will be recorded outside the Mon/Wed/Fri schedule.'}</div>`}
+  <div class="field"><label>${db.lang==='es'?'Equipo a surtir':'Equipment to refuel'}</label>
+   <select id="fuelTargetMode" onchange="toggleFuelTargetMode()">
+    <option value="existing">${db.lang==='es'?'Equipo existente':'Existing equipment'}</option>
+    <option value="new">${db.lang==='es'?'Nuevo equipo':'New equipment'}</option>
+   </select>
+  </div>
+
+  <div id="existingFuelTarget">
+   <div class="field"><label>${db.lang==='es'?'Torre / Generador':'Tower / Generator'}</label>
+    <select id="fuelExistingAsset" onchange="refreshExistingFuelInfo()">
+     ${db.towers.map(x=>`<option value="${x.id}" ${x.id===db.activeTower?'selected':''}>${x.serial} · ${x.location}</option>`).join('')}
+    </select>
+   </div>
+   <div id="existingFuelInfo"></div>
+  </div>
+
+  <div id="newFuelTarget" style="display:none">
+   <div class="field"><label>${db.lang==='es'?'Número de referencia':'Reference number'}</label><input id="fuelNewReference"></div>
+   <div class="field"><label>Serial</label><input id="fuelNewSerial"></div>
+   <div class="field"><label>${db.lang==='es'?'Color':'Color'}</label><input id="fuelNewColor"></div>
+   <div class="field"><label>${db.lang==='es'?'Tipo de equipo':'Equipment type'}</label>
+    <select id="fuelNewClass" onchange="toggleFuelNewClass()">
+     <option value="light_tower">${db.lang==='es'?'Torre de luz':'Light tower'}</option>
+     <option value="generator">${db.lang==='es'?'Generador':'Generator'}</option>
+     <option value="reserve_tank">${db.lang==='es'?'Tanque de respaldo':'Reserve tank'}</option>
+    </select>
+   </div>
+   <div class="field"><label>${db.lang==='es'?'Capacidad de almacenamiento (gal)':'Storage capacity (gal)'}</label><input id="fuelNewCapacity" type="number" min="0" step=".1"></div>
+   <div class="field"><label>${db.lang==='es'?'Ubicación':'Location'}</label><select id="fuelNewLocation" onchange="handleLocationChange('fuelNewLocation','fuelNewOfficeWrap','fuelNewOffice')">${locationOptions()}</select></div>
+   <div class="field" id="fuelNewOfficeWrap" style="display:none"><label>${db.lang==='es'?'Oficina dentro de Oficinas Mobil':'Office inside Oficinas Mobil'}</label><select id="fuelNewOffice">${mobileOfficeOptions()}</select></div>
+   <button type="button" class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openLocationManager()">${db.lang==='es'?'Agregar nuevo lugar / oficina':'Add new location / office'}</button>
+   <div class="field"><label>${db.lang==='es'?'Descripción de ubicación':'Location description'}</label><textarea id="fuelNewDescription"></textarea></div>
+   <div id="fuelNewBackupOption">
+    <div class="field"><label>${db.lang==='es'?'¿Tiene tanque de respaldo adicional?':'Has an additional backup tank?'}</label>
+     <select id="fuelNewHasBackup" onchange="toggleFuelNewBackup()"><option value="no">No</option><option value="yes">${db.lang==='es'?'Sí':'Yes'}</option></select>
+    </div>
+    <div id="fuelNewBackupFields" style="display:none">
+     <div class="field"><label>${db.lang==='es'?'Capacidad del respaldo (gal)':'Backup capacity (gal)'}</label><input id="fuelNewBackupCapacity" type="number" min="0" step=".1"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="field"><label>${db.lang==='es'?'Galones que faltaban para llenar':'Gallons missing to full'}</label><input id="missingMain" type="number" min="0" step=".1"></div>
+  <div id="existingBackupFuelFields"></div>
+
+  <div class="field"><label>${db.lang==='es'?'Fecha y hora del surtido':'Refuel date & time'}</label><input id="when" type="datetime-local"></div>
+  <div class="field"><label>${db.lang==='es'?'Tanque de origen':'Source tank'}</label>
+   <select id="sourceTank">${db.tanks.map(k=>`<option value="${k.id}">${k.serial||k.name} — ${k.location}</option>`).join('')}</select>
+  </div>
+  <div class="btns"><button class="btn secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn primary" onclick="recordFuel()">${t('save')}</button></div>
  `);
  when.value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
+ toggleFuelTargetMode();
+}
+function toggleFuelTargetMode(){
+ const mode=document.getElementById('fuelTargetMode').value;
+ document.getElementById('existingFuelTarget').style.display=mode==='existing'?'block':'none';
+ document.getElementById('newFuelTarget').style.display=mode==='new'?'block':'none';
+ if(mode==='existing')refreshExistingFuelInfo();
+ else toggleFuelNewClass();
+}
+function refreshExistingFuelInfo(){
+ const id=document.getElementById('fuelExistingAsset').value;
+ const x=db.towers.find(a=>a.id===id); if(!x)return;
+ const box=document.getElementById('existingFuelInfo');
+ box.innerHTML=`<div class="calc-note"><b>${db.lang==='es'?'Referencia':'Reference'}:</b> ${x.referenceNumber||x.code||'—'}<br><b>${db.lang==='es'?'Color':'Color'}:</b> ${x.color||'—'}<br><b>${db.lang==='es'?'Tipo':'Type'}:</b> ${x.equipmentClass==='generator'?(db.lang==='es'?'Generador':'Generator'):(db.lang==='es'?'Torre de luz':'Light tower')}<br><b>${db.lang==='es'?'Capacidad':'Capacity'}:</b> ${fmt(x.fuelCapacity||0)} gal<br><b>${db.lang==='es'?'Ubicación':'Location'}:</b> ${composeLocationDisplay(x.location||'—',x.mobileOffice||'')}</div>`;
+ document.getElementById('missingMain').value=Math.max(0,(x.fuelCapacity||0)-(x.fuelLevel||0));
+ const b=document.getElementById('existingBackupFuelFields');
+ b.innerHTML=x.hasBackupTank?`<div class="field"><label>${db.lang==='es'?'Galones que faltaban al tanque de respaldo':'Gallons missing from backup tank'}</label><input id="missingBackup" type="number" min="0" step=".1" value="${Math.max(0,(x.backupCapacity||0)-(x.backupLevel||0))}"></div>`:'';
+}
+function toggleFuelNewClass(){
+ const isReserve=document.getElementById('fuelNewClass').value==='reserve_tank';
+ document.getElementById('fuelNewBackupOption').style.display=isReserve?'none':'block';
+}
+function toggleFuelNewBackup(){
+ const el=document.getElementById('fuelNewBackupFields');
+ el.style.display=document.getElementById('fuelNewHasBackup').value==='yes'?'block':'none';
 }
 function recordFuel(){
- const x=active(),a=+amt.value||0;
- if(!a)return alert(db.lang==='es'?'Indica la cantidad de diésel surtido.':'Enter the diesel amount.');
+ const mode=document.getElementById('fuelTargetMode').value;
+ const dateValue=when.value;
  const tank=db.tanks.find(k=>k.id===sourceTank.value);
- if(db.type!=='tower')return alert(db.lang==='es'?'Selecciona una torre para registrar el surtido.':'Select a tower to record refueling.');
- x.fuelLevel=Math.min(x.fuelCapacity,x.fuelLevel+a);x.lastFuel=when.value;
- if(tank && typeof tank.current==='number') tank.current=Math.max(0,tank.current-a);
- if(tank) tank.lastFill=when.value;
- db.history.push({id:Date.now(),kind:'fuel',towerId:x.id,tankId:tank?.id||null,date:when.value,amount:a,location:x.location,hourMeter:x.hourMeter??null,supplyType:supplyClass(when.value),note:tank?`${tank.name||tank.serial} · ${tank.location}`:''});
+ const mainMissing=Math.max(0,Number(missingMain.value)||0);
+
+ if(mode==='new'){
+   const ref=fuelNewReference.value.trim(),serial=fuelNewSerial.value.trim(),color=fuelNewColor.value.trim();
+   const cls=fuelNewClass.value,cap=Number(fuelNewCapacity.value)||0,loc=fuelNewLocation.value,office=locationIsMobil(loc)?(fuelNewOffice.value||''):'',desc=fuelNewDescription.value.trim();
+   if(!serial||!cap||!loc)return alert(db.lang==='es'?'Completa serial, capacidad y ubicación.':'Complete serial, capacity, and location.');
+   if(mainMissing>cap)return alert(db.lang==='es'?'El faltante no puede superar la capacidad.':'Missing amount cannot exceed capacity.');
+
+   if(cls==='reserve_tank'){
+     const id='T'+Date.now();
+     const current=Math.max(0,cap-mainMissing);
+     db.tanks.push({
+       id,name:'Tanque de respaldo',serial,referenceNumber:ref,color,equipmentClass:'reserve_tank',
+       capacity:cap,current:cap,location:loc,mobileOffice:office,description:desc,status:'Activo',removable:true,
+       lastFill:dateValue,hourMeter:0,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:mainMissing,lastConsumptionDays:0
+     });
+     db.activeTank=id;
+     if(tank&&typeof tank.current==='number')tank.current=Math.max(0,tank.current-mainMissing);
+     db.history.push({id:Date.now(),kind:'fuel',tankId:id,sourceTankId:tank?.id||null,date:dateValue,amount:mainMissing,location:loc,supplyType:supplyClass(dateValue),referenceNumber:ref,color,equipmentClass:cls});
+     db.type='tank';
+     save();closeModal();render();
+     alert(db.lang==='es'?'Nuevo tanque de respaldo agregado y surtido registrado.':'New reserve tank added and refuel recorded.');
+     return;
+   }
+
+   const hasBackup=fuelNewHasBackup.value==='yes';
+   const backupCap=hasBackup?(Number(fuelNewBackupCapacity.value)||0):0;
+   const id='A'+Date.now();
+   const typeName=cls==='generator'?'Generador':'Torre de luz';
+   const x={
+     id,serial,referenceNumber:ref,color,equipmentClass:cls,type:typeName,model:'',code:ref,
+     fuelCapacity:cap,defCapacity:8,location:loc,mobileOffice:office,description:desc,status:'Operativa',hourMeter:null,
+     lastFuel:dateValue,lastDef:null,fuelLevel:cap,defLevel:0,priority:99,removable:true,
+     consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,
+     hasBackupTank:hasBackup,backupCapacity:backupCap,backupLevel:backupCap,backupLastRefill:hasBackup?dateValue:null,
+     backupAvgGalPerDay:0,backupLastConsumed:0,avgGalPerDay:0,lastConsumed:mainMissing,lastConsumptionDays:0
+   };
+   db.towers.push(x);db.activeTower=id;db.type='tower';
+   let backupMissing=0;
+   if(hasBackup && document.getElementById('missingBackup'))backupMissing=Number(missingBackup.value)||0;
+   const totalAdded=mainMissing+backupMissing;
+   if(tank&&typeof tank.current==='number')tank.current=Math.max(0,tank.current-totalAdded);
+   db.history.push({id:Date.now(),kind:'fuel',towerId:id,tankId:tank?.id||null,date:dateValue,amount:mainMissing,backupAmount:backupMissing,location:loc,hourMeter:null,supplyType:supplyClass(dateValue),referenceNumber:ref,color,equipmentClass:cls,note:tank?`${tank.serial||tank.name} · ${tank.location}`:''});
+   save();closeModal();render();
+   alert(db.lang==='es'?`Nuevo ${typeName.toLowerCase()} agregado y surtido registrado.`:`New ${cls==='generator'?'generator':'light tower'} added and refuel recorded.`);
+   return;
+ }
+
+ const x=db.towers.find(a=>a.id===fuelExistingAsset.value);
+ if(!x)return;
+ if(mainMissing>x.fuelCapacity)return alert(db.lang==='es'?'El faltante no puede superar la capacidad principal.':'Missing amount cannot exceed main tank capacity.');
+
+ const mainStats=calcConsumptionStats(x.fuelCapacity,Math.max(0,x.fuelCapacity-mainMissing),x.lastFuel,dateValue);
+ if(x.lastFuel){x.lastConsumed=mainMissing;x.lastConsumptionDays=mainStats.days;x.avgGalPerDay=mainStats.days>0?mainMissing/mainStats.days:0;}
+ x.fuelLevel=x.fuelCapacity;x.lastFuel=dateValue;
+
+ let backupMissing=0;
+ if(x.hasBackupTank){
+   backupMissing=Math.max(0,Number(document.getElementById('missingBackup')?.value)||0);
+   if(backupMissing>x.backupCapacity)return alert(db.lang==='es'?'El faltante del respaldo supera su capacidad.':'Backup missing amount exceeds capacity.');
+   const stats=calcConsumptionStats(x.backupCapacity,Math.max(0,x.backupCapacity-backupMissing),x.backupLastRefill,dateValue);
+   if(x.backupLastRefill){x.backupLastConsumed=backupMissing;x.backupAvgGalPerDay=stats.days>0?backupMissing/stats.days:0;}
+   x.backupLevel=x.backupCapacity;x.backupLastRefill=dateValue;
+ }
+
+ const totalAdded=mainMissing+backupMissing;
+ if(tank&&typeof tank.current==='number'){tank.current=Math.max(0,tank.current-totalAdded);tank.lastFill=dateValue;}
+
+ db.history.push({
+   id:Date.now(),kind:'fuel',towerId:x.id,tankId:tank?.id||null,date:dateValue,amount:mainMissing,
+   backupAmount:backupMissing,location:x.location,hourMeter:x.hourMeter??null,
+   supplyType:supplyClass(dateValue),consumptionDays:mainStats.days,avgGalPerDay:x.avgGalPerDay||0,
+   referenceNumber:x.referenceNumber||x.code||'',color:x.color||'',equipmentClass:x.equipmentClass||'light_tower',
+   note:tank?`${tank.serial||tank.name} · ${tank.location}`:''
+ });
  save();closeModal();render();
+ alert(db.lang==='es'?`Surtido registrado. Consumido: ${fmt(mainMissing)} gal${x.avgGalPerDay?` · ${fmt(x.avgGalPerDay)} gal/día`:''}`:`Refuel saved. Consumed: ${fmt(mainMissing)} gal${x.avgGalPerDay?` · ${fmt(x.avgGalPerDay)} gal/day`:''}`);
 }
 function openDef(){
  if(db.type!=='tower')return alert(db.lang==='es'?'Selecciona una torre para registrar DEF.':'Select a tower to record DEF.');
@@ -926,7 +1238,7 @@ function filterActiveTankRows(q){
 }
 
 function openMore(){openModal(t('more'),`<div class="list">
-<div class="list-item">CT Cumberland</div>
+<div class="list-item">CT Cumberland</div><button class="list-item" style="text-align:left;background:#fff;width:100%" onclick="openLocationManager()">${db.lang==='es'?'Administrar ubicaciones y Oficinas Mobil':'Manage locations and Mobile Offices'}</button>
 <div class="list-item">${db.lang==='es'?'Idioma del teléfono detectado':'Phone language detected'}: <b>${DEVICE_LANG==='es'?'Español':'English'}</b></div>
 <button class="list-item" style="text-align:left;background:#fff;width:100%" onclick="resetLanguageToDevice()">${db.lang==='es'?'Usar automáticamente el idioma del teléfono':'Automatically use phone language'}</button>
 </div>
@@ -998,6 +1310,35 @@ const _openModalV13=openModal;
 openModal=function(){_openModalV13.apply(this,arguments);setTimeout(applyGlobalLanguageFixed,0);}
 const _setLangV13=setLang;
 setLang=function(l){_setLangV13(l);setTimeout(applyGlobalLanguageFixed,0);}
+
+
+function normalizeFuelData(){
+ (db.towers||[]).forEach(x=>{
+   if(typeof x.referenceNumber==='undefined')x.referenceNumber=x.code||'';
+   if(typeof x.color==='undefined')x.color='';
+   if(typeof x.equipmentClass==='undefined')x.equipmentClass=(x.type||'').toLowerCase().includes('generador')?'generator':'light_tower';
+   if(typeof x.mobileOffice==='undefined')x.mobileOffice='';
+  if(typeof x.hasBackupTank==='undefined')x.hasBackupTank=false;
+  if(typeof x.backupCapacity==='undefined')x.backupCapacity=0;
+  if(typeof x.backupLevel==='undefined')x.backupLevel=0;
+  if(typeof x.backupLastRefill==='undefined')x.backupLastRefill=null;
+  if(typeof x.backupAvgGalPerDay==='undefined')x.backupAvgGalPerDay=0;
+  if(typeof x.backupLastConsumed==='undefined')x.backupLastConsumed=0;
+  if(typeof x.lastConsumed==='undefined')x.lastConsumed=0;
+  if(typeof x.avgGalPerDay==='undefined')x.avgGalPerDay=0;
+  if(typeof x.lastConsumptionDays==='undefined')x.lastConsumptionDays=0;
+ });
+ (db.tanks||[]).forEach(x=>{
+   if(typeof x.referenceNumber==='undefined')x.referenceNumber='';
+   if(typeof x.color==='undefined')x.color='';
+   if(typeof x.equipmentClass==='undefined')x.equipmentClass='reserve_tank';
+   if(typeof x.mobileOffice==='undefined')x.mobileOffice='';
+  if(typeof x.lastConsumed==='undefined')x.lastConsumed=0;
+  if(typeof x.avgGalPerDay==='undefined')x.avgGalPerDay=0;
+ });
+ save();
+}
+normalizeFuelData();
 
 setInterval(()=>clock.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),1000);
 setInterval(weeklyCloseReminder,60000);
