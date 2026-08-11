@@ -355,7 +355,7 @@ const appStorage=(()=>{
 })();
 
 
-const KEY='ctc_native_hd_v51_samsung_icon';
+const KEY='ctc_native_hd_v54_report_385_final';
 const seed={
  lang:null,type:'tower',activeTower:'A1',activeTank:'T1',
  towers:[
@@ -527,16 +527,28 @@ function todayISO(){
   const d=new Date();
   return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
 }
+function isDieselHistoryRecord(h){
+  return h && (
+    h.kind==='fuel' ||
+    h.kind==='refuel' ||
+    h.product==='diesel' ||
+    h.fuelType==='diesel'
+  ) && h.kind!=='def';
+}
+function historyGallons(h){
+  return Number(h?.amount ?? h?.gallons ?? 0) || 0;
+}
 function dailyDieselTotal(dateStr=todayISO()){
-  return db.history.filter(h=>h.kind==='fuel' && (h.date||'').slice(0,10)===dateStr)
-    .reduce((s,h)=>s+Number(h.amount||0),0);
+  return (db.history||[])
+    .filter(h=>isDieselHistoryRecord(h) && (h.date||'').slice(0,10)===dateStr)
+    .reduce((s,h)=>s+historyGallons(h),0);
 }
 function dailyDefTotal(dateStr=todayISO()){
   return db.history.filter(h=>h.kind==='def' && (h.date||'').slice(0,10)===dateStr)
     .reduce((s,h)=>s+Number(h.amount||0),0);
 }
 function dailyServicedUnits(dateStr=todayISO()){
-  return [...new Set(db.history.filter(h=>(h.kind==='fuel'||h.kind==='def') && (h.date||'').slice(0,10)===dateStr).map(h=>h.towerId))];
+  return [...new Set((db.history||[]).filter(h=>(isDieselHistoryRecord(h)||h.kind==='def') && (h.date||'').slice(0,10)===dateStr).map(h=>h.towerId).filter(Boolean))];
 }
 function priorityRank(loc){
   const i=PRIORITY_LOCATIONS.indexOf(loc);
@@ -557,10 +569,10 @@ function weekRange(ref=new Date()){
 }
 function buildWeeklyReport(ref=new Date()){
   const w=weekRange(ref);
-  const rows=db.history.filter(h=>(h.kind==='fuel'||h.kind==='def') && (h.date||'').slice(0,10)>=w.start && (h.date||'').slice(0,10)<=w.end)
+  const rows=(db.history||[]).filter(h=>(isDieselHistoryRecord(h)||h.kind==='def') && (h.date||'').slice(0,10)>=w.start && (h.date||'').slice(0,10)<=w.end)
     .map(h=>({...h,supplyType:h.supplyType||supplyClass(h.date)}))
     .sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-  const fuel=rows.filter(h=>h.kind==='fuel').reduce((s,h)=>s+Number(h.amount||0),0);
+  const fuel=rows.filter(h=>isDieselHistoryRecord(h)).reduce((s,h)=>s+historyGallons(h),0);
   const def=rows.filter(h=>h.kind==='def').reduce((s,h)=>s+Number(h.amount||0),0);
   return {w,rows,fuel,def,scheduled:rows.filter(h=>h.supplyType==='scheduled'),unscheduled:rows.filter(h=>h.supplyType==='unscheduled')};
 }
@@ -686,7 +698,8 @@ function openAssetFromLocation(kind,id){
  }
  save();
  closeModal();
- render();
+ seedConfirmedDiesel20260810();
+render();
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function openAddAssetAtLocation(locationName){
@@ -1371,6 +1384,66 @@ function normalizeReplacementData(){
 }
 
 normalizeReplacementData();
+
+
+function normalizeConfirmedDiesel385(){
+  if(!Array.isArray(db.history))db.history=[];
+  const h=db.history.find(x=>x.id==='DIESEL-2026-08-10-385-CONSOLIDADO');
+  if(!h)return;
+  h.kind='fuel';
+  h.product='diesel';
+  h.fuelType='diesel';
+  h.amount=385;
+  h.gallons=385;
+  h.liters=galToL(385);
+  h.date='2026-08-10';
+  h.consolidated=true;
+  save();
+}
+
+function seedConfirmedDiesel20260810(){
+  if(!Array.isArray(db.history))db.history=[];
+
+  if(!db.history.some(h=>h.id==='DIESEL-2026-08-10-385-CONSOLIDADO')){
+    db.history.push({
+      id:'DIESEL-2026-08-10-385-CONSOLIDADO',
+      kind:'fuel',
+      product:'diesel',
+      fuelType:'diesel',
+      amount:385,
+      gallons:385,
+      liters:1457.38,
+      date:'2026-08-10',
+      equipmentType:'Surtido múltiple',
+      serial:'',
+      referenceNumber:'',
+      location:'Múltiples ubicaciones',
+      areaZone:'',
+      operator:'',
+      consolidated:true,
+      destinations:[
+        {
+          location:'Sitemetric',
+          detail:'Equipos Sitemetric registrados',
+          references:['10396317','11355191']
+        },
+        {
+          location:'Trailer City',
+          detail:'Antena de Radio / Tanque de respaldo',
+          references:['12338705']
+        },
+        {
+          location:'Entrada Hielo',
+          detail:'Área 7A / Generador y tanque de respaldo',
+          references:['Z469268','923785']
+        }
+      ],
+      note:'Surtido consolidado de Diésel: 385 gal totales. Destinos: Sitemetric; Trailer City - Antena de Radio; 7A - Entrada a Hielos. Distribución individual por equipo pendiente de registrar.'
+    });
+    save();
+  }
+}
+
 function render(){
  document.body.classList.toggle('tank-selected',db.type==='tank');
  document.documentElement.lang=db.lang;
@@ -1643,7 +1716,7 @@ function openDEFControl(){
         <div class="meta">${db.lang==='es'?'Serial / Referencia':'Serial / Reference'}: ${serial}</div>
         <div class="meta">${db.lang==='es'?'Ubicación':'Location'}: ${loc}</div>
         ${h.operator?`<div class="meta">${db.lang==='es'?'Surtido por':'Supplied by'}: ${h.operator}</div>`:''}
-        ${h.note?`<div class="meta">${db.lang==='es'?'Observación':'Note'}: ${h.note}</div>`:''}
+        ${h.consolidated?`<div class="meta"><b>${db.lang==='es'?'Destinos':'Destinations'}:</b><br>${consolidatedFuelDetail(h)}</div>`:''}${h.note?`<div class="meta">${db.lang==='es'?'Observación':'Note'}: ${h.note}</div>`:''}
       </div>`;
     }).join('') : `<div class="list-item">${db.lang==='es'?'Aún no hay registros de DEF.':'No DEF records yet.'}</div>`}
 
@@ -2141,7 +2214,7 @@ function buildDailyReport(){
  const fuel=dailyDieselTotal(d),def=dailyDefTotal(d);
  const serviced=dailyServicedUnits(d);
  const units=serviced.map(id=>db.towers.find(x=>x.id===id)).filter(Boolean).sort((a,b)=>priorityRank(a.location)-priorityRank(b.location));
- const tankIds=[...new Set(db.history.filter(h=>h.kind==='fuel' && (h.date||'').slice(0,10)===d).map(h=>h.tankId).filter(Boolean))];
+ const tankIds=[...new Set((db.history||[]).filter(h=>isDieselHistoryRecord(h) && (h.date||'').slice(0,10)===d).map(h=>h.tankId).filter(Boolean))];
  const tanks=tankIds.map(id=>db.tanks.find(x=>x.id===id)).filter(Boolean);
  return {d,fuel,def,units,tanks};
 }
@@ -2430,6 +2503,15 @@ function openFuelAlerts(){
  `);
 }
 
+
+function consolidatedFuelDetail(h){
+  if(!h?.consolidated || !Array.isArray(h.destinations))return '';
+  return h.destinations.map(d=>{
+    const refs=(d.references||[]).length?` · ${(d.references||[]).join(', ')}`:'';
+    return `${d.location}${d.detail?` · ${d.detail}`:''}${refs}`;
+  }).join('<br>');
+}
+
 function openReport(){
  setActiveNav('reports');
  const r=buildDailyReport();
@@ -2438,6 +2520,7 @@ function openReport(){
    <div style="font-size:11px;line-height:1.5">
     <div class="list-item"><b>${db.lang==='es'?'Día de surtido':'Supply day'}:</b> ${isSupplyDay(new Date())?(db.lang==='es'?'Sí':'Yes'):(db.lang==='es'?'No':'No')}</div>
     <div class="list-item"><b>${db.lang==='es'?'Diésel surtido hoy':'Diesel dispensed today'}:</b> ${fmt(r.fuel)} gal · ${fmt(galToL(r.fuel))} L</div>
+    ${(()=>{const h=(db.history||[]).find(x=>x.id==='DIESEL-2026-08-10-385-CONSOLIDADO'&&(x.date||'').slice(0,10)===r.d);return h?`<div class="list-item"><b>${db.lang==='es'?'Detalle Diésel de hoy':'Today Diesel detail'}:</b><br>Sitemetric<br>Trailer City · Antena de Radio<br>7A · Entrada a Hielos<br><b>${fmt(historyGallons(h))} gal · ${fmt(galToL(historyGallons(h)))} L</b></div>`:''})()}
     <div class="list-item"><b>${db.lang==='es'?'DEF surtido hoy':'DEF dispensed today'}:</b> ${fmt(r.def)} gal · ${fmt(galToL(r.def))} L</div>
     <div class="list-item"><b>${db.lang==='es'?'Torres / Generadores atendidos':'Towers / Generators serviced'}:</b> ${r.units.length}</div>
    </div>
@@ -2806,6 +2889,8 @@ function normalizeFuelData(){
  save();
 }
 normalizeFuelData();
+seedConfirmedDiesel20260810();
+normalizeConfirmedDiesel385();
 
 setTimeout(()=>checkFuelAlerts(false),1500);
 setInterval(()=>checkFuelAlerts(false),3600000);
