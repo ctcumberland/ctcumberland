@@ -349,7 +349,7 @@ const appStorage=(()=>{
 })();
 
 
-const KEY='ctc_native_hd_v47_location_assets';
+const KEY='ctc_native_hd_v50_real_data';
 const seed={
  lang:null,type:'tower',activeTower:'A1',activeTank:'T1',
  towers:[
@@ -363,6 +363,13 @@ const seed={
   {id:'A8',serial:'LT-458928',type:'Torre de luz',model:'Allmand Maxi-Lite',code:'TL-049',fuelCapacity:100,defCapacity:8,location:'Sitemetric',description:'Acceso secundario de Sitemetric.',status:'Operativa',hourMeter:860,lastFuel:null,lastDef:null,fuelLevel:57,defLevel:4.0,priority:1,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
   {id:'A9',serial:'LT-458929',type:'Torre de luz',model:'Wacker Neuson LTV6',code:'TL-050',fuelCapacity:110,defCapacity:8,location:'Trailer City',description:'Sector oeste de Trailer City.',status:'Operativa',hourMeter:820,lastFuel:null,lastDef:null,fuelLevel:61,defLevel:4.3,priority:2,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null},
   {id:'A10',serial:'LT-458930',type:'Torre de luz',model:'Generac MLT6S',code:'TL-051',fuelCapacity:100,defCapacity:8,location:'Medical Trailer',description:'Parte posterior del Medical Trailer.',status:'Operativa',hourMeter:780,lastFuel:null,lastDef:null,fuelLevel:50,defLevel:3.6,priority:3,removable:true,consumptionRateGph:1.2,lastMeterPhoto:null,lastMeterPhotoTime:null}
+  ,
+  {id:'REAL-LT-10396317',serial:'10396317',referenceNumber:'10396317',type:'Torre de luz',equipmentClass:'light_tower',model:'LTV6',code:'10396317',color:'Verde',fuelCapacity:0,defCapacity:0,location:'Sitemetric',sitemetricZone:'Norte',areaZone:'',description:'Entrada norte de Sitemetric. Capacidad y niveles pendientes de registrar.',status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:0,defLevel:0,priority:1,removable:true,consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0,defAvgGalPerDay:0,sourceRecord:true},
+  {id:'REAL-LT-11034172',serial:'11034172',referenceNumber:'11034172',type:'Torre de luz',equipmentClass:'light_tower',model:'LTV6',code:'11034172',color:'Gris',fuelCapacity:0,defCapacity:0,location:'Chill Zone',areaZone:'',description:'Chill Zone del Sitemetric Norte. Capacidad y niveles pendientes de registrar.',status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:0,defLevel:0,priority:1,removable:true,consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0,defAvgGalPerDay:0,sourceRecord:true},
+  {id:'REAL-GEN-Z469268',serial:'Z469268',referenceNumber:'Z469268',type:'Generador',equipmentClass:'generator',model:'Sunbelt',code:'Z469268',color:'Verde',fuelCapacity:0,defCapacity:0,location:'Entrada Hielo',areaZone:'7A',description:'Generador Sunbelt, Entrada Hielo, área 7A. Asociado a tanque de respaldo 923785.',status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:0,defLevel:0,priority:99,removable:true,consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,hasBackupTank:true,backupSerial:'923785',backupColor:'Blanco',backupBrand:'Sunbelt',backupCapacity:528,backupLevel:0,backupLastRefill:null,backupAvgGalPerDay:0,backupLastConsumed:0,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0,defAvgGalPerDay:0,sourceRecord:true},
+  {id:'REAL-LT-11355191',serial:'11355191',referenceNumber:'11355191',type:'Torre de luz',equipmentClass:'light_tower',model:'LTV6',code:'11355191',color:'Gris',fuelCapacity:0,defCapacity:0,location:'Sitemetric',areaZone:'7A',description:'Torre de Luz LTV6 en Sitemetric, área 7A. Capacidad y niveles pendientes de registrar.',status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:0,defLevel:0,priority:1,removable:true,consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0,defAvgGalPerDay:0,sourceRecord:true},
+  {id:'REAL-GEN-11643264',serial:'11643264',referenceNumber:'11643264',type:'Generador',equipmentClass:'generator',model:'MQ Power',code:'11643264',color:'Blanco',fuelCapacity:575.63,defCapacity:0,location:'Ubicación pendiente',areaZone:'',description:'Generador MQ Power. Capacidad original anotada: 2,179 L = 575.63 gal. Ubicación y niveles pendientes de confirmar.',status:'Operativa',hourMeter:null,lastFuel:null,lastDef:null,fuelLevel:0,defLevel:0,priority:99,removable:true,consumptionRateGph:0,lastMeterPhoto:null,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0,defAvgGalPerDay:0,sourceRecord:true}
+
  ],
  tanks:[
   {id:'T1',name:'Tanque 1',serial:'TK-001',capacity:552.4,current:460,location:'Sitemetric',description:'Tanque removible de 2.091 L para almacenamiento de diésel.',status:'Activo',removable:true,lastFill:'2026-08-09T06:00',hourMeter:0,lastMeterPhotoTime:null},
@@ -375,8 +382,19 @@ const seed={
   {id:'T8',name:'Tanque 8',serial:'TK-008',capacity:552.4,current:290,location:'Sitemetric',description:'Tanque auxiliar removible de 2.091 L en Sitemetric.',status:'Activo',removable:true,lastFill:'2026-08-09T07:10',hourMeter:0,lastMeterPhotoTime:null},
   {id:'T9',name:'Tanque 9',serial:'TK-009',capacity:552.4,current:270,location:'Trailer City',description:'Tanque auxiliar removible de 2.091 L en Trailer City.',status:'Activo',removable:true,lastFill:'2026-08-09T07:20',hourMeter:0,lastMeterPhotoTime:null},
   {id:'T10',name:'Tanque 10',serial:'TK-010',capacity:552.4,current:250,location:'Medical Trailer',description:'Tanque auxiliar removible de 2.091 L en Medical Trailer.',status:'Activo',removable:true,lastFill:'2026-08-09T07:30',hourMeter:0,lastMeterPhotoTime:null}
+  ,
+  {id:'REAL-TK-11890502',name:'Tanque 11890502',serial:'11890502',referenceNumber:'11890502',equipmentClass:'tank',color:'',capacity:792.25,current:0,location:'Orientación',areaZone:'',description:'Tanque nuevo. Capacidad original anotada: 2,999 L = 792.25 gal. Nivel actual pendiente. Nota original adicional: 103 gal, sin clasificar como surtido.',status:'Activo',removable:true,lastFill:null,hourMeter:0,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0,sourceRecord:true},
+  {id:'REAL-TK-923785',name:'Tanque respaldo 923785',serial:'923785',referenceNumber:'923785',equipmentClass:'tank',color:'Blanco',brand:'Sunbelt',capacity:528,current:0,location:'Entrada Hielo',areaZone:'7A',description:'Tanque de respaldo Sunbelt asociado al Generador Z469268. Capacidad principal registrada según nota: 528 gal. La nota también indica 1,986 L.',status:'Activo',removable:true,lastFill:null,hourMeter:0,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0,sourceRecord:true},
+  {id:'REAL-TK-12338705',name:'Tanque respaldo 12338705',serial:'12338705',referenceNumber:'12338705',equipmentClass:'tank',color:'Blanco',capacity:552,current:0,location:'Trailer City',areaZone:'',description:'Tanque de respaldo en Trailer City / Radios. Capacidad registrada: 552 gal. La nota también indica 2,091 L. Nivel actual pendiente.',status:'Activo',removable:true,lastFill:null,hourMeter:0,lastMeterPhotoTime:null,avgGalPerDay:0,lastConsumed:0,lastConsumptionDays:0,sourceRecord:true}
+
  ],
- history:[]
+ history:[
+  {id:'DEF-2026-08-10-3A-PENDING',kind:'def',amount:8.97,date:'2026-08-10T21:00:00',equipmentType:'Generador',serial:'',referenceNumber:'',location:'Tienda de campaña',areaZone:'3A',operator:'',note:'Serial pendiente de identificar'}
+ ],
+ customLocations:[
+  {name:'Entrada Hielo',defaultArea:'7A'},
+  {name:'Ubicación pendiente',defaultArea:''}
+ ]
 };
 let db;try{db=JSON.parse(appStorage.getItem(KEY))||structuredClone(seed)}catch(e){db=structuredClone(seed)}
 const DEVICE_LANG=((navigator.languages&&navigator.languages[0])||navigator.language||'en').toLowerCase().startsWith('es')?'es':'en';
@@ -574,6 +592,12 @@ function assetTypeLabel(x,isTank=false){
  const cls=x.equipmentClass||((x.type||'').toLowerCase().includes('generador')?'generator':'light_tower');
  return cls==='generator'?(db.lang==='es'?'Generador':'Generator'):(db.lang==='es'?'Torre de Luz':'Light Tower');
 }
+
+function displayKnownFuel(value,x){
+ if(x&&x.sourceRecord&&Number(value||0)===0)return db.lang==='es'?'Pendiente':'Pending';
+ return fmtFuel(value||0);
+}
+
 function assetCapacity(x,isTank=false){
  return isTank?Number(x.capacity||0):Number(x.fuelCapacity||0);
 }
@@ -621,8 +645,8 @@ function openLocationAssetOverview(locationName){
        return `<button class="asset-mini" style="width:100%;text-align:left" onclick="openAssetFromLocation('${kind}','${x.id}')">
          <b>${x.referenceNumber||x.code||x.serial||'—'} · ${x.serial||'—'}</b>
          ${sub?`<div class="meta">${db.lang==='es'?'Ubicación interna':'Internal location'}: ${sub}</div>`:''}
-         <div class="meta">${db.lang==='es'?'Capacidad':'Capacity'}: ${fmtFuel(cap)}</div>
-         <div class="meta">${db.lang==='es'?'Nivel actual':'Current level'}: ${fmtFuel(current)}</div>
+         <div class="meta">${db.lang==='es'?'Capacidad':'Capacity'}: ${displayKnownFuel(cap,x)}</div>
+         <div class="meta">${db.lang==='es'?'Nivel actual':'Current level'}: ${displayKnownFuel(current,x)}</div>
          ${!isTank?`<div class="meta">DEF: ${fmtFuel(x.defLevel||0)}</div>`:''}
          <div class="meta">${db.lang==='es'?'Consumo promedio':'Average consumption'}: ${avg>0?fmtRate(avg):'—'}</div>
          <div class="meta">${db.lang==='es'?'Días estimados restantes':'Estimated days remaining'}: ${days!==null?fmtDays(days)+' '+(db.lang==='es'?'días':'days'):'—'}</div>
@@ -1556,7 +1580,232 @@ function fmtDays(v){
   if(v===null||!isFinite(v))return '—';
   return Number(v).toLocaleString(undefined,{maximumFractionDigits:1});
 }
+
 function openFuel(){
+  setActiveNav('fuel');
+  openModal(db.lang==='es'?'Combustible':'Fuel',`
+    <div class="calc-note" style="margin-bottom:12px">
+      ${db.lang==='es'?'Selecciona el tipo de producto.':'Select the product type.'}
+    </div>
+    <button class="location-btn" style="width:100%;margin-bottom:10px" onclick="openDieselFuel()">
+      <b>⛽ ${db.lang==='es'?'Diésel':'Diesel'}</b>
+      <div class="meta">${db.lang==='es'?'Registrar surtidos y controlar consumo.':'Record refuels and track consumption.'}</div>
+    </button>
+    <button class="location-btn" style="width:100%" onclick="openDEFControl()">
+      <b>💧 DEF</b>
+      <div class="meta">${db.lang==='es'?'Registrar y consultar DEF por fecha, equipo y serial.':'Record and review DEF by date, equipment and serial.'}</div>
+    </button>
+  `);
+}
+
+function defHistoryRows(){
+  return (db.history||[])
+    .filter(h=>h.kind==='def')
+    .sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+}
+
+function openDEFControl(){
+  setActiveNav('fuel');
+  const rows=defHistoryRows();
+  const total=rows.reduce((s,h)=>s+Number(h.amount||0),0);
+
+  openModal('DEF',`
+    <div class="dynamic-grid" style="margin-bottom:12px">
+      <div class="dynamic-box">
+        <div class="k">${db.lang==='es'?'Total registrado':'Total recorded'}</div>
+        <div class="v">${fmtFuel(total)}</div>
+      </div>
+      <div class="dynamic-box">
+        <div class="k">${db.lang==='es'?'Registros':'Records'}</div>
+        <div class="v">${rows.length}</div>
+      </div>
+    </div>
+
+    <button class="btn primary" style="width:100%;margin-bottom:12px" onclick="openAddDEFRecord()">
+      ＋ ${db.lang==='es'?'Agregar DEF':'Add DEF'}
+    </button>
+
+    ${rows.length ? rows.map(h=>{
+      let loc=h.location||'—';
+      if(h.location==='Sitemetric'&&h.sitemetricZone)loc+=` · ${sitemetricZoneLabel(h.sitemetricZone)}`;
+      if(h.mobileOffice)loc+=` · ${h.mobileOffice}`;
+      if(h.areaZone)loc+=` · ${h.areaZone}`;
+      const serial=h.serial||h.referenceNumber||(db.lang==='es'?'Pendiente de identificar':'Pending identification');
+      return `<div class="list-item" style="margin-bottom:8px">
+        <b>${h.date?date(h.date):'—'} · ${fmtFuel(h.amount||0)}</b>
+        <div class="meta">${db.lang==='es'?'Equipo':'Equipment'}: ${h.equipmentType||'—'}</div>
+        <div class="meta">${db.lang==='es'?'Serial / Referencia':'Serial / Reference'}: ${serial}</div>
+        <div class="meta">${db.lang==='es'?'Ubicación':'Location'}: ${loc}</div>
+        ${h.operator?`<div class="meta">${db.lang==='es'?'Surtido por':'Supplied by'}: ${h.operator}</div>`:''}
+        ${h.note?`<div class="meta">${db.lang==='es'?'Observación':'Note'}: ${h.note}</div>`:''}
+      </div>`;
+    }).join('') : `<div class="list-item">${db.lang==='es'?'Aún no hay registros de DEF.':'No DEF records yet.'}</div>`}
+
+    <button class="btn secondary" style="width:100%;margin-top:10px" onclick="openFuel()">
+      ${db.lang==='es'?'Volver a Combustible':'Back to Fuel'}
+    </button>
+  `);
+}
+
+function openAddDEFRecord(){
+  const equipment=(db.towers||[]);
+
+  openModal(db.lang==='es'?'Agregar DEF':'Add DEF',`
+    <div class="field">
+      <label>${db.lang==='es'?'Fecha y hora':'Date and time'}</label>
+      <input id="defDate" type="datetime-local">
+    </div>
+
+    <div class="field">
+      <label>${db.lang==='es'?'Equipo registrado':'Registered equipment'}</label>
+      <select id="defAsset" onchange="fillDEFAsset()">
+        <option value="">${db.lang==='es'?'Serial pendiente / seleccionar equipo':'Pending serial / select equipment'}</option>
+        ${equipment.map(x=>{
+          const cls=x.equipmentClass==='generator'||(x.type||'').toLowerCase().includes('generador')
+            ?(db.lang==='es'?'Generador':'Generator')
+            :(db.lang==='es'?'Torre de Luz':'Light Tower');
+          return `<option value="${x.id}">${cls} · ${x.serial||x.referenceNumber||'—'} · ${x.location||'—'}</option>`;
+        }).join('')}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>${db.lang==='es'?'Tipo de equipo':'Equipment type'}</label>
+      <select id="defEquipmentType">
+        <option value="Generador">${db.lang==='es'?'Generador':'Generator'}</option>
+        <option value="Torre de Luz">${db.lang==='es'?'Torre de Luz':'Light Tower'}</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>${db.lang==='es'?'Serial / Referencia':'Serial / Reference'}</label>
+      <input id="defSerial" placeholder="${db.lang==='es'?'Puede quedar pendiente':'May remain pending'}">
+    </div>
+
+    <div class="field">
+      <label>${db.lang==='es'?'Lugar':'Location'}</label>
+      <select id="defLocation" onchange="updateDEFLocationFields()">
+        ${allSelectableLocations().map(x=>`<option value="${x}">${x}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field" id="defSiteWrap" style="display:none">
+      <label>${db.lang==='es'?'Área Sitemetric':'Sitemetric area'}</label>
+      <select id="defSite">${sitemetricZoneOptions()}</select>
+    </div>
+
+    <div class="field" id="defAreaWrap" style="display:none">
+      <label>${db.lang==='es'?'Área':'Area'}</label>
+      <select id="defArea">
+        <option value="">—</option>
+        <option value="3A">3A</option>
+        <option value="4A">4A</option>
+        <option value="7A">7A</option>
+      </select>
+    </div>
+
+    <div class="field" id="defCompanyWrap" style="display:none">
+      <label>${db.lang==='es'?'Empresa':'Company'}</label>
+      <select id="defCompany">
+        ${(db.mobileOffices||[]).map(x=>`<option value="${x.name||x}">${x.name||x}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>${db.lang==='es'?'DEF surtido (gal)':'DEF supplied (gal)'}</label>
+      <input id="defAmount" type="number" min="0" step="0.01">
+    </div>
+
+    <div class="field">
+      <label>${db.lang==='es'?'Surtido por':'Supplied by'}</label>
+      <input id="defOperator">
+    </div>
+
+    <div class="field">
+      <label>${db.lang==='es'?'Observación':'Note'}</label>
+      <textarea id="defNote"></textarea>
+    </div>
+
+    <div class="btns">
+      <button class="btn secondary" onclick="openDEFControl()">${db.lang==='es'?'Cancelar':'Cancel'}</button>
+      <button class="btn primary" onclick="saveDEFRecord()">${db.lang==='es'?'Guardar DEF':'Save DEF'}</button>
+    </div>
+  `);
+
+  const now=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
+  const d=document.getElementById('defDate');
+  if(d)d.value=now;
+  updateDEFLocationFields();
+}
+
+function updateDEFLocationFields(){
+  const loc=document.getElementById('defLocation')?.value||'';
+  const site=document.getElementById('defSiteWrap');
+  const area=document.getElementById('defAreaWrap');
+  const company=document.getElementById('defCompanyWrap');
+  if(site)site.style.display=loc==='Sitemetric'?'flex':'none';
+  if(area)area.style.display=['Chill Zone','Tienda de campaña','Oficinas Mobil'].includes(loc)?'flex':'none';
+  if(company)company.style.display=loc==='Oficinas Mobil'?'flex':'none';
+}
+
+function fillDEFAsset(){
+  const id=document.getElementById('defAsset')?.value||'';
+  const x=(db.towers||[]).find(a=>a.id===id);
+  if(!x)return;
+
+  const isGen=x.equipmentClass==='generator'||(x.type||'').toLowerCase().includes('generador');
+  document.getElementById('defEquipmentType').value=isGen?'Generador':'Torre de Luz';
+  document.getElementById('defSerial').value=x.serial||x.referenceNumber||'';
+  document.getElementById('defLocation').value=x.location||'';
+  updateDEFLocationFields();
+
+  if(x.sitemetricZone&&document.getElementById('defSite'))document.getElementById('defSite').value=x.sitemetricZone;
+  if(x.areaZone&&document.getElementById('defArea'))document.getElementById('defArea').value=x.areaZone;
+  if(x.mobileOffice&&document.getElementById('defCompany'))document.getElementById('defCompany').value=x.mobileOffice;
+}
+
+function saveDEFRecord(){
+  const amount=Number(document.getElementById('defAmount')?.value||0);
+  if(amount<=0){
+    alert(db.lang==='es'?'Ingresa la cantidad de DEF en galones.':'Enter DEF amount in gallons.');
+    return;
+  }
+
+  const assetId=document.getElementById('defAsset')?.value||'';
+  const asset=(db.towers||[]).find(a=>a.id===assetId);
+  const loc=document.getElementById('defLocation')?.value||'';
+
+  if(!Array.isArray(db.history))db.history=[];
+
+  db.history.push({
+    id:'DEF-'+Date.now(),
+    kind:'def',
+    amount,
+    date:document.getElementById('defDate')?.value||new Date().toISOString(),
+    towerId:assetId||null,
+    equipmentId:assetId||null,
+    equipmentType:document.getElementById('defEquipmentType')?.value||'Generador',
+    serial:(document.getElementById('defSerial')?.value||'').trim(),
+    referenceNumber:asset?.referenceNumber||'',
+    location:loc,
+    sitemetricZone:loc==='Sitemetric'?(document.getElementById('defSite')?.value||''):'',
+    areaZone:['Chill Zone','Tienda de campaña','Oficinas Mobil'].includes(loc)
+      ?(document.getElementById('defArea')?.value||''):'',
+    mobileOffice:loc==='Oficinas Mobil'?(document.getElementById('defCompany')?.value||''):'',
+    operator:(document.getElementById('defOperator')?.value||'').trim(),
+    note:(document.getElementById('defNote')?.value||'').trim()
+  });
+
+  if(asset){
+    asset.lastDef=document.getElementById('defDate')?.value||new Date().toISOString();
+    asset.defLevel=Number(asset.defLevel||0)+amount;
+  }
+
+  save();
+  openDEFControl();
+}
+
+function openDieselFuel(){
  setActiveNav('fuel');
  const allowed=isSupplyDay(new Date());
  openModal(t('fuelRefill'),`
